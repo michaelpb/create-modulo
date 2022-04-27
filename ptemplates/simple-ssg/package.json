@@ -1,0 +1,21 @@
+{
+  "name": "a-new-project",
+  "version": "0.0.0",
+  "description": "...a new project...",
+  "scripts": {
+    "start": "modulocli devserve",
+    "devserve": "modulocli devserve",
+    "generate": "modulocli generate",
+    "help": "modulocli help",
+    "serve": "modulocli serve",
+    "ssg": "modulocli ssg",
+    "watch": "modulocli watch"
+  },
+  "dependencies": {
+    "mdu-cli": "0.0.1"
+  }
+}
+
+
+
+

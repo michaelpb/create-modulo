@@ -1,0 +1,20 @@
+{
+  "name": "create-modulo",
+  "version": "0.0.1",
+  "description": "Minimalist Web Component based framework",
+  "homepage": "https://modulojs.org/",
+  "main": "mcli/modulocli.js",
+  "bin": {
+        "create-modulo": "create-modulo.js",
+        "create-modulocli": "create-modulo.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelpb/create-modulo.git"
+  },
+  "author": "michaelb",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/michaelpb/modulo/issues"
+  }
+}
