@@ -1,16 +1,30 @@
 <head>
+    <title>{{ props.title }}</title>
     <meta charset="utf8" />
-    <link rel="stylesheet" href="css/minireset.css" />
-    <link rel="stylesheet" href="css/base.css" />
-    <link rel="stylesheet" href="css/site.css" />
-    <!--<link rel="stylesheet" href="css/site_bc4.css" />-->
+
+    <!--
+        Since this Component is "vanish-into-document", it's allowed to include
+        loose LINK and SCRIPT tags, which will be interpreted and built,
+        allowing you to more easily integrate existing HTML files here. E.g.:
+    -->
+    <link rel="stylesheet" href="/static/css/site.css" />
 </head>
 <body>
     <div class="Page-container">
-        <nav class="Page-sidebar">
+        <nav class="Page-nav">
+            <img src="/static/images/example_logo.svg" />
             <ul>
-                {% for info in script.navigation %}
-                    <li><a href="{{ info.1 }}" class="{% if info.">{{ info.0 }}</a></li>
+                {% for page in script.navigation %}
+                    <li>
+                        <a href="/{{ page.file }}"
+                            title="{{ page.title }}"
+                            class="
+                                Page-navLink
+                                {% if page.file == props.navselected %}Page-navLink--selected{% endif %}
+                            ">
+                            {{ page.title|upper }}
+                        </a>
+                    </li>
                 {% endfor %}
             </ul>
         </nav>
