@@ -1,0 +1,30 @@
+<Component name="Page" mode="vanish-into-document">
+    <Props
+        page-title
+        nav-file
+    ></Props>
+
+    <Template
+        -src="/static/libraries/layout/Page.html"
+    ></Template>
+
+    <Style
+        -src="/static/libraries/layout/Page.css"
+    ></Style>
+
+    <Script>
+        function prepareCallback() {
+            // For now, store the navigation array and generate year in JS
+            return {
+                currentYear: (new Date()).getFullYear(),
+                navigation: [
+                    [ "Home", "index.html" ],
+                    [ "About", "about.html" ],
+                    [ "Contact", "contact.html" ],
+                ],
+            };
+        }
+    </Script>
+
+</Component>
+

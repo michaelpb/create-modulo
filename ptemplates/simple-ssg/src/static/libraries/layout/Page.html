@@ -1,0 +1,28 @@
+<head>
+    <meta charset="utf8" />
+    <link rel="stylesheet" href="css/minireset.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/site.css" />
+    <!--<link rel="stylesheet" href="css/site_bc4.css" />-->
+</head>
+<body>
+    <div class="Page-container">
+        <nav class="Page-sidebar">
+            <ul>
+                {% for info in script.navigation %}
+                    <li><a href="{{ info.1 }}" class="{% if info.">{{ info.0 }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <main class="Page-mainContent">
+            <slot></slot>
+        </main>
+    </div>
+
+    <footer class="Page-footer">
+        &copy; {{ script.currentYear }} | All Rights Reserved by Page Author
+        <!-- Feel free to delete this: -->
+        | <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
+    </footer>
+</body>
