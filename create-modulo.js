@@ -4,25 +4,16 @@ const fs = require("fs");
 const path = require("path");
 const child_process = require("child_process");
 
-function getPackageJSON(name, moduloVersion = "*") {
-    // For now, only do "*" for new ones. Later should "lock-in" latest stable
-    // version.
+function getPackageJSON(name) {
     return {
         "name": name,
         "version": "0.0.0",
         "private": true,
         "description": "...a new project...",
         "scripts": {
-            "start": "modulocli devserve",
-            "devserve": "modulocli devserve",
-            "generate": "modulocli generate",
             "help": "modulocli help",
-            "serve": "modulocli serve",
-            "ssg": "modulocli ssg",
-            "watch": "modulocli watch",
-        },
-        "dependencies": {
-            "mdu-cli": moduloVersion,
+            "start": "modulocli srcserve",
+            "build": "modulocli ssg -f",
         },
     };
 }
@@ -62,8 +53,11 @@ function parseArgs(argArray, shiftFirst=true) {
 }
 
 function npmInstallSync(name) {
-    console.log(`create-modulo: Beginning "npm install"`);
-    child_process.execSync(`cd ${name} && npm install`);
+    console.log(`create-modulo: Beginning "npm install express"`);
+    child_process.execSync(`cd ${name} && npm install --save-dev express`);
+
+    console.log(`create-modulo: Beginning npm install mdu-cli"`);
+    child_process.execSync(`cd ${name} && npm install --save-dev mdu-cli`);
     const mjsInput = `${ name }/node_modules/mdu-cli/src/Modulo.js`;
     const mjsOutput = `${ name }/src/static/js/Modulo.js`;
     copyRecursiveSync(mjsInput, mjsOutput);
