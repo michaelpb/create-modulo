@@ -71,10 +71,9 @@ function parseArgs(argArray, shiftFirst=true) {
     if (argArray.length < 1) {
         return argArray;
     }
-    if (argArray[0].endsWith('modulo.js')) {
+    if (argArray[0].endsWith('modulo.js') || argArray[0].endsWith('create-modulo')) {
         argArray.shift(); // shift again, if necessary
     }
-    // TODO: Need to test this with "npm exec create-modulo"
     return argArray;
 }
 
@@ -101,9 +100,6 @@ function jsonWriteSync(name) {
 }
 
 function main() {
-    console.log('testing testing 123');
-    console.log(process.argv);
-    process.exit(1); //
     const templateName = 'simple-ssg';
     const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     const args = parseArgs(Array.from(process.argv));
