@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#! /usr/bin/env
 
 const fs = require("fs");
 const path = require("path");
@@ -102,12 +102,12 @@ function jsonWriteSync(name) {
 }
 
 function main() {
-    const templatePath = __dirname + '/ptemplates/simple-ssg/';
-    const dest = '.';
+    const templateName = 'simple-ssg';
+    const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     const args = parseArgs(Array.from(process.argv));
     let name = 'new-modulo-app';
     if (args.length < 1) {
-        console.warn(`create-modulo: Defaulting to "${ name }"`);
+        log(`Defaulting to "${ name }"`);
     } else {
         name = args[0];
     }
