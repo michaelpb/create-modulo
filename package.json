@@ -1,9 +1,11 @@
 {
   "name": "create-modulo",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Starter projects for minimalist Web Component based framework",
   "homepage": "https://modulojs.org/",
-  "bin": "bin/create-modulo.js",
+  "bin": {
+    "create-modulo": "bin/create-modulo.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/michaelpb/create-modulo.git"
