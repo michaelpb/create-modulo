@@ -4,6 +4,33 @@ const fs = require("fs");
 const path = require("path");
 const child_process = require("child_process");
 
+
+const TERM = {
+    MAGENTA_BG: '\x1b[45m',
+
+    BLACK_FG: '\x1b[30m',
+    MAGENTA_FG: '\x1b[35m',
+    RED_FG: '\x1b[31m',
+    GREEN_FG: '\x1b[32m',
+    YELLOW_FG: '\x1b[33m',
+    BLUE_FG: '\x1b[34m',
+
+    RESET: '\x1b[0m',
+    BRIGHT: '\x1b[1m',
+    DIM: '\x1b[2m',
+    UNDERSCORE: '\x1b[4m',
+};
+TERM.LOGO = TERM.DIM + '[%]' + TERM.RESET;
+// TERM.LOGOLINE = TERM.MAGENTA_FG + '[%]' + TERM.RESET + TERM.UNDERSCORE;
+
+const log = (...args) => {
+    console.log(TERM.LOGO, '        ', ...args);
+};
+
+const logSuccess = (...args) => {
+    console.log(TERM.LOGO, TERM.GREEN_FG + 'SUCCESS' + TERM.RESET, ...args);
+};
+
 function getPackageJSON(name) {
     return {
         "name": name,
@@ -53,17 +80,17 @@ function parseArgs(argArray, shiftFirst=true) {
 }
 
 function npmInstallSync(name) {
-    console.log(`create-modulo: Beginning "npm install express"`);
+    log(`Beginning "npm install express"`);
     child_process.execSync(`cd ${name} && npm install --save-dev express`);
 
-    console.log(`create-modulo: Beginning npm install mdu.js"`);
+    log(`Beginning "npm install mdu.js"`);
     child_process.execSync(`cd ${name} && npm install --save-dev mdu.js`);
     const mjsInput = `${ name }/node_modules/mdu.js/src/Modulo.js`;
     const mjsOutput = `${ name }/src/static/js/Modulo.js`;
     copyRecursiveSync(mjsInput, mjsOutput);
-    console.log(`create-modulo: SUCCESS  Run the following to get started:`);
-    console.log(`create-modulo:          cd ${ name }/`);
-    console.log(`create-modulo:          npm start`);
+    logSuccess(`Run the following to get started:`);
+    log(`cd ${ name }/`);
+    log(`npm start`);
 }
 
 function jsonWriteSync(name) {
@@ -71,7 +98,7 @@ function jsonWriteSync(name) {
     const data = getPackageJSON(name);
     const dataStr = JSON.stringify(data, null, 4);
     fs.writeFileSync(path, dataStr);
-    console.log(`create-modulo: Created Modulo project at: ${ name }/`);
+    log(`Created Modulo project at: ${ name }/`);
 }
 
 function main() {

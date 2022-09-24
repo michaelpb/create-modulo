@@ -1,15 +1,9 @@
 {
   "name": "create-modulo",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "description": "Starter projects for minimalist Web Component based framework",
   "homepage": "https://modulojs.org/",
-  "main": "create-modulo.js",
-  "bin": {
-        "create-modulo": "create-modulo.js",
-        "create-mdu-cli": "create-modulo.js",
-        "create-mdu": "create-modulo.js",
-        "create-modulocli": "create-modulo.js"
-  },
+  "bin": "./create-modulo.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/michaelpb/create-modulo.git"
