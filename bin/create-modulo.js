@@ -101,6 +101,9 @@ function jsonWriteSync(name) {
 }
 
 function main() {
+    console.log('testing testing 123');
+    console.log(process.argv);
+    process.exit(1); //
     const templateName = 'simple-ssg';
     const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     const args = parseArgs(Array.from(process.argv));
