@@ -56,9 +56,9 @@ function npmInstallSync(name) {
     console.log(`create-modulo: Beginning "npm install express"`);
     child_process.execSync(`cd ${name} && npm install --save-dev express`);
 
-    console.log(`create-modulo: Beginning npm install mdu-cli"`);
-    child_process.execSync(`cd ${name} && npm install --save-dev mdu-cli`);
-    const mjsInput = `${ name }/node_modules/mdu-cli/src/Modulo.js`;
+    console.log(`create-modulo: Beginning npm install mdu.js"`);
+    child_process.execSync(`cd ${name} && npm install --save-dev mdu.js`);
+    const mjsInput = `${ name }/node_modules/mdu.js/src/Modulo.js`;
     const mjsOutput = `${ name }/src/static/js/Modulo.js`;
     copyRecursiveSync(mjsInput, mjsOutput);
     console.log(`create-modulo: SUCCESS  Run the following to get started:`);
