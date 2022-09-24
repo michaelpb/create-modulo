@@ -11,9 +11,12 @@ Use the following commands:
 - `npm run build`
     - Will do a static site build, and output to `www`, automatically bundling
       your JavaScript and CSS
-    - Note: Must first do `npm install pupeteer`
+    - Note: Until a Modulo DOM implementation is complete, in order to run the
+      automated SSG build you will have to install the `puppeteer` dependency:
+        - `npm install puppeteer`
 - `npm run help`
-    - Show commands available for modulocli
+    - Show all commands available for modulocli (some of these being still
+      experimental and undocumented)
 
 -----------
 
