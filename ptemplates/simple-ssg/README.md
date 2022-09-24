@@ -11,6 +11,7 @@ Use the following commands:
 - `npm run build`
     - Will do a static site build, and output to `www`, automatically bundling
       your JavaScript and CSS
+    - Note: Must first do `npm install pupeteer`
 - `npm run help`
     - Show commands available for modulocli
 
