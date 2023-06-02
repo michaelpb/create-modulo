@@ -100,8 +100,7 @@ function jsonWriteSync(name) {
 }
 
 function main() {
-    const templateName = 'simple-ssg';
-    const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
+
     const args = parseArgs(Array.from(process.argv));
     let name = 'new-modulo-app';
     if (args.length < 1) {
@@ -109,6 +108,16 @@ function main() {
     } else {
         name = args[0];
     }
+
+    let templateName = null;
+    if (args.length < 2) {
+        templateName = 'jamstack-simple';
+        //log(`Defaulting to template "${ templateName }"`);
+    } else {
+        templateName = args[1];
+    }
+
+    const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
     npmInstallSync(name);

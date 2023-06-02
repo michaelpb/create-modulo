@@ -1,0 +1,58 @@
+<head>
+    <title>{{ props.pageTitle }}</title>
+    <meta charset="utf8" />
+
+    <!--
+        Since this Component is "vanish-into-document", it's allowed to include
+        loose LINK and SCRIPT tags, which will be interpreted and built,
+        allowing you to more easily integrate existing HTML files here. E.g.:
+    -->
+    <link rel="stylesheet" href="/static/css/site.css" />
+</head>
+<body>
+    <nav class="page-nav container">
+        <ul>
+            {% for page in staticdata.navigation %}
+                <li class="{% if page.file == props.navselected %}page-li--selected{% endif %}">
+                    <a href="/{{ page.file }}"
+                        title="{{ page.title }}"
+                        class="
+                            page-nav-link
+                            {% if page.file == props.navselected %}page-nav-link--selected{% endif %}
+                        ">
+                        {{ page.title|upper }}
+                    </a>
+                </li>
+            {% endfor %}
+            <div class="nav-logo"><img src="/static/images/example_logo.svg" /></div>
+        </ul>
+    </nav>
+
+    <div class="page-container container {% if props.showarticles %}articles-container{% endif %}">
+        {% if props.showarticles %}
+            <aside>
+              {% for page in staticdata.articles %}
+                  <li class="{% if page.file == props.navselected %}page-li--selected{% endif %}">
+                      <a href="/{{ page.file }}"
+                          title="{{ page.title }}"
+                          class="
+                              page-nav-link
+                              {% if page.file == props.navselected %}page-nav-link--selected{% endif %}
+                          ">
+                          {{ page.title|upper }}
+                      </a>
+                  </li>
+              {% endfor %}
+            </aside>
+        {% endif %}
+        <main class="page-content">
+            <slot></slot>
+        </main>
+    </div>
+
+    <footer class="page-footer">
+        &copy; {{ script.currentYear }} | All Rights Reserved by Page Author
+        <!-- Feel free to delete this: -->
+        | <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
+    </footer>
+</body>
