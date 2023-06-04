@@ -73,6 +73,7 @@
     border-radius: 5px 5px 0 0;
     border: 1px solid #00000088;
     height: calc(var(--logo-height) - 31px);
+    background: #FFFFFF66;
     /*box-shadow: 5px 5px #00000088;*/
 }
 

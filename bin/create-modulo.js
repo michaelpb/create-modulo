@@ -111,8 +111,8 @@ function main() {
 
     let templateName = null;
     if (args.length < 2) {
-        templateName = 'jamstack-simple';
-        //log(`Defaulting to template "${ templateName }"`);
+        templateName = 'jamstack-cms';
+        log(`Defaulting to project template "${ templateName }"`);
     } else {
         templateName = args[1];
     }
