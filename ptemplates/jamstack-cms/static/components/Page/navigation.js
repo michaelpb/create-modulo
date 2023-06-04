@@ -1,12 +1,8 @@
 {
     navigation: [
         {
-            title: "Home",
-            file: "index.html",
-        },
-        {
             title: "Articles",
-            file: "articles/",
+            file: "index.html",
         },
         {
             title: "About",
@@ -21,13 +17,13 @@
         {
             title: "Example article",
             byline: "Example author",
-            date: "1999-09-09",
+            estimate: "5 minute read",
             file: "articles/example-article.html",
         },
         {
             title: "Another article",
             byline: "Another example",
-            date: "1999-09-10",
+            estimate: "10 minute read",
             file: "articles/another-article.html",
         },
     ],

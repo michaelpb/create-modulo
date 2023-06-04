@@ -3,12 +3,12 @@
     components here to have them be available with an "x-" prefix, or create
     new libraries and include them in file with <Library -src=...></Library>
 -->
-
 <Component name="Page" mode="vanish-into-document">
     <Props
-        page-title
+        pagetitle
         showarticles
         navselected
+        navbreadcrumb
     ></Props>
     <StaticData
         -src="./components/Page/navigation.js"

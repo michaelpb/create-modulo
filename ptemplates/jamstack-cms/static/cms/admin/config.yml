@@ -1,0 +1,4 @@
+backend:
+  name: test-repo
+  branch: main
+media_folder: "static/cms/uploads"

@@ -1,0 +1,17 @@
+<!-- The template used by Markdown / CMS Content pages -->
+
+<x-Page
+    pagetitle="{{ page.title }}"
+    showarticles="Read articles"
+    navselected="index.html"
+    navbreadcrumb="{{ page.title }}"
+>
+    <h1 style="font-size: 3rem">{{ page.title }}</h1>
+    <h2 style="font-weight: bold; color: gray">{{ page.subtitle }}</h2>
+    <p>by <em>{{ page.author }}</em></p>
+    <hr />
+    <div class="markdown-body">
+        {{ page.body }}
+    </div>
+</x-Page>
+

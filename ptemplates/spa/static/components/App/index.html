@@ -1,0 +1,58 @@
+<!-- App Component source code, included via -src in /static/index.html -->
+<Template>
+    <main>
+        <img src="https://modulojs.org/img/modulo_logo.svg" />
+        {% if state.info %}
+            <h1 style="color: #B90183">{{ state.info.name }}</h1>
+        {% else %}
+            <h1>Single Page App</h1>
+        {% endif %}
+        <p>Edit <code>static/components/App/index.html</code> to start</p>
+        <button @click:=script.retrieveData>Click to test API:</button>
+        <pre>{{ state.info|json:4 }}</pre>
+    </main>
+</Template>
+
+<State
+    info:=null
+></State>
+
+<Script>
+    // Example API-style function (retrieve the public package.json file)
+    function retrieveData() {
+        window.fetch('/package.json')
+            .then(response => response.json())
+            .then(data => {
+                state.info = data;
+                element.rerender();
+            });
+    }
+</Script>
+
+<Style>
+    :host {
+        font-family: sans-serif;
+        grid-template-columns: 1fr minmax(auto, 900px) 1fr;
+        display: grid;
+        font-size: 1.3rem;
+        --shadow-color: #00000088;
+    }
+
+    main, pre {
+        grid-column: 2;
+        border: 2px solid var(--shadow-color);
+        box-shadow: 5px 5px var(--shadow-color);
+        padding: 10px;
+        margin: 10px;
+        text-align: center;
+    }
+
+    img {
+        width: 100px;
+        margin: auto;
+    }
+
+    pre {
+        text-align: left;
+    }
+</Style>

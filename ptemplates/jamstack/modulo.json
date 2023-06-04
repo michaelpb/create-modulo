@@ -1,0 +1,5 @@
+{
+    "isCopyOnly": "^static$",
+    "output": "build",
+    "input": "."
+}

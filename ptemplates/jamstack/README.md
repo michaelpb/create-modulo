@@ -2,6 +2,8 @@ This is a Modulo.js website created with `create-modulo`
 
 Visit <https://modulojs.org> for documentation on Modulo.js
 
+-----------
+
 - Edit the HTML files here to add your own content
 
 - Edit the Markdown files in `articles/` to add article or blog-style content
@@ -28,8 +30,8 @@ Use the following commands:
 Publishing checklist:
 
 * [ ] To publish, make sure your web-server is serving the `build` directory.
-  If you are publishing with GitHub pages, then it cannot be changed to `docs`
+  If you are publishing with GitHub Pages, then it cannot be changed to `docs`
   by default, meaning you will need to change the `modulo.json` file to have
-  `"output": "build"` instead of `"output": "docs"`
+  `"output": "docs"` instead of `"output": "build"`
 
 * [ ] **Replace this README with one specific to your project!**

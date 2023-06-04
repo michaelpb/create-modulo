@@ -1,0 +1,85 @@
+<head>
+    <title>{{ props.pageTitle }}</title>
+    <meta charset="utf8" />
+
+    <!--
+        Since this Component is "vanish-into-document", it's allowed to include
+        loose LINK and SCRIPT tags, which will be interpreted and built,
+        allowing you to more easily integrate existing HTML files here. E.g.:
+    -->
+    <link rel="stylesheet" href="/static/css/site.css" />
+</head>
+<body>
+    <nav class="page-nav container">
+        <ul>
+            {% for page in staticdata.navigation %}
+                <li class="{% if page.file == props.navselected %}page-li--selected{% endif %}">
+                    <a href="/{{ page.file }}"
+                        title="{{ page.title }}"
+                        class="
+                            page-nav-link
+                            {% if page.file == props.navselected %}page-nav-link--selected{% endif %}
+                        ">
+                        {{ page.title|upper }}
+                    </a>
+                </li>
+            {% endfor %}
+            <div class="nav-logo"><img src="/static/images/example_logo.svg" /></div>
+        </ul>
+    </nav>
+
+    <div class="page-container container {% if props.showarticles %}articles-container{% endif %}">
+        <main class="page-content">
+            {% if props.navbreadcrumb %}
+                    {% for page in staticdata.navigation %}
+                        {% if page.file == props.navselected %}
+                            <a href="/{{ page.file }}" title="{{ page.title }}" class="breadcrumb">
+                                {{ page.title }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="breadcrumb">/</span>
+                    <a href="#" title="{{ page.title }}" class="breadcrumb breadcrumb--selected">
+                        {{ props.navbreadcrumb }}
+                    </a>
+            {% endif %}
+            <slot></slot>
+        </main>
+
+        {% if props.showarticles %}
+            <nav class="article-nav">
+                <ul>
+                    <h1>Read one of our articles</h1>
+                    {% for article in staticdata.articles %}
+                        <li class="{% if article.file == props.navselected %}page-li--selected{% endif %}">
+                                <a
+                                    href="/{{ article.file }}"
+                                    title="{{ article.title }}"
+                                    class="page-nav-link {% if page.file == props.navselected %}page-nav-link--selected{% endif %}"
+                                    style="background: var(--color); color: white; font-size: 1.6rem"
+                                >
+                                    <span style="min-width: 250px; display: inline-block">{{ article.title }}</span>
+                                    <span style="margin-left: 5px; font-weight: normal; font-size: 1.4rem;">
+                                        {{ article.byline }}
+                                    </span>
+                                    <span style="margin: 11px; float: right; margin-top: -18px; opacity: 0.9">
+                                        <span style="font-size: 1.1rem; font-weight: normal;">
+                                            {{ article.estimate }}
+                                        </span><br />
+                                        <span style="font-size: 1.1rem">READ MORE</span>
+                                        &raquo;
+                                    </span>
+                            </a>
+                        </li>
+                    {% endfor %}
+              </ul>
+            </nav>
+        {% endif %}
+    </div>
+
+    <footer class="page-footer">
+        &copy; {{ script.currentYear }} | All Rights Reserved by Page Author
+        <!-- Feel free to delete this: -->
+        | <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
+    </footer>
+</body>
