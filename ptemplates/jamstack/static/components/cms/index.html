@@ -7,8 +7,8 @@
 <script Configuration -src="https://unpkg.com/showdown/dist/showdown.min.js">
     function getMarkdownData(source) {
         const converter = new showdown.Converter({ metadata: true });
-        const html = converter.makeHtml(source);
-        const data = converter.getMetadata();
+        const html = converter.makeHtml(source); // Generate HTML from MD
+        const data = converter.getMetadata(); // Load the "Frontmatter"
         data.body = Object.assign(String(html), { safe: true });
         return data;
     }
@@ -17,7 +17,7 @@
 
 <Library namespace="x" -src="/static/"></Library>
 <Component namespace="cms" name="MarkdownPage" mode="vanish-into-document">
-    <Template -src="./PageBody/PageBody.html"></Template>
+    <Template -src="./MarkdownPage/MarkdownPage.html"></Template>
     <Script -name="page">
         function prepareCallback(renderObj) {
             const { originalHTML } = element;
@@ -27,4 +27,3 @@
         }
     </Script>
 </Component>
-
