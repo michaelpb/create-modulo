@@ -1,15 +1,35 @@
+.field-pair,
+button {
+    border: 3px solid black;
+    border-top-width: 2px;
+    border-bottom-width: 4px;
+    box-shadow: 3px 3px #00000088;
+    border-radius: 4px;
+    width: 60%;
+    margin-left: 20%;
+    margin-top: 10px;
+}
+
 .field-pair {
     display: grid;
-    width: calc(100% - 10px);
     grid-template-columns: 100px 1fr;
-    margin: 10px;
     padding: 10px;
-    border: 1px solid black;
-    box-shadow: 3px 3px gray;
-    border-radius: 10px;
 }
 
 .field-pair > * {
     border: none;
-    font-size: 15px;
+    font-size: 1.2rem;
+    padding: 5px;
+    font-family: sans-serif;
+}
+
+button {
+    background-color: var(--color);
+    color: white;
+    width: 60%;
+    margin-left: 20%;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 10px;
 }

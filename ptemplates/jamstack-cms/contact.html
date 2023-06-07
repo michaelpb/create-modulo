@@ -4,7 +4,7 @@
     -src="/static/" 
 ></script>
 
-<x-Page page-title="Contact" navselected="contact.html">
+<x-Page pagetitle="Contact" navselected="contact.html">
 
     <h1>Contact me</h1>
 
@@ -12,13 +12,15 @@
 
     <p>This example text is found in <code>contact.html</code>, while the
     example form component is found in
-    <code>static/components/ContactFormExample.html</code>.</p>
+    <code>static/components/ContactForm.html</code>.</p>
 
     <form netlify-form>
-        <x-ContactFormExample></x-ContactFormExample>
+        <x-ContactForm>
+            <button>Send Message &raquo;</button>
+        </x-ContactForm>
     </form>
 
-    <p>Note that this form will require a backend to work, such as Netlify's form API.<p>
+    <p>Note that this form will require a backend to work, such as Netlify's
+    form API.<p>
 
 </x-Page>
-

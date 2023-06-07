@@ -1,7 +1,6 @@
 <head>
-    <title>{{ props.pageTitle }}</title>
+    <title>{{ props.pagetitle }}</title>
     <meta charset="utf8" />
-
     <!--
         Since this Component is "vanish-into-document", it's allowed to include
         loose LINK and SCRIPT tags, which will be interpreted and built,
@@ -24,7 +23,9 @@
                     </a>
                 </li>
             {% endfor %}
-            <div class="nav-logo"><img src="/static/images/example_logo.svg" /></div>
+            <div class="nav-logo {% if props.navselected == "admin" %}nav-logo--selected{% endif %}">
+                <a href="/static/cms/admin/"><img src="/static/images/example_logo.svg" title="Site Logo" /></a>
+            </div>
         </ul>
     </nav>
 

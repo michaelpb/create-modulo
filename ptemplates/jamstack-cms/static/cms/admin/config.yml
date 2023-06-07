@@ -1,4 +1,23 @@
+local_backend: true
 backend:
-  name: test-repo
+  name: git-gateway
   branch: main
 media_folder: "static/cms/uploads"
+collections:
+  - label: "Articles"
+    name: "articles"
+    folder: "/articles/"
+    extension: "html"
+    format: "yaml-frontmatter"
+    frontmatter_delimiter: [
+        '<!DOCTYPE HTML><script Modulo src="/static/js/Modulo.js" -src="/static/components/cms/"></script><cms-MarkdownPage>---',
+        '---',
+    ]
+    create: true
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Subtitle", name: "subtitle", widget: "string"}
+      - {label: "Author", name: "author", widget: "string"}
+      - {label: "Publish Date", name: "date", widget: "datetime"}
+      - {label: "Body", name: "body", widget: "markdown"}
+

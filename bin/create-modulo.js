@@ -100,7 +100,6 @@ function jsonWriteSync(name) {
 }
 
 function main() {
-
     const args = parseArgs(Array.from(process.argv));
     let name = 'new-modulo-app';
     if (args.length < 1) {
@@ -111,11 +110,11 @@ function main() {
 
     let templateName = null;
     if (args.length < 2) {
-        templateName = 'jamstack-cms';
-        log(`Defaulting to project template "${ templateName }"`);
+        templateName = 'jamstack';
     } else {
         templateName = args[1];
     }
+    log(`Project template: "${ templateName }"`);
 
     const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     copyRecursiveSync(templatePath, name);

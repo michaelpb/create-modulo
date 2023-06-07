@@ -1,8 +1,8 @@
 :host {
     --footer-height: 100px;
     --navbar-height: 68px;
-    --logo-width: 100px;
-    --logo-height: 100px;
+    --logo-width: 50px;
+    --logo-height: 50px;
     --btn-shadow-dist: 4px;
     --btn-shadow-dist-neg: -4px;
     --color: indigo;
@@ -50,9 +50,22 @@
 .page-nav .nav-logo {
     width: var(--logo-width);
     height: var(--logo-height);
-    position: relative;
+    margin: 10px;
     margin-left: auto;
-    z-index: 1;
+}
+
+.page-nav .nav-logo--selected {
+    animation: SpinOnLoad 0.15s;
+    box-shadow: 0 0 0 15px inset var(--color);
+}
+
+@keyframes SpinOnLoad {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .page-nav img {
@@ -72,8 +85,6 @@
     padding: 10px;
     border-radius: 5px 5px 0 0;
     border: 1px solid #00000088;
-    height: calc(var(--logo-height) - 31px);
-    /*box-shadow: 5px 5px #00000088;*/
 }
 
 .page-nav li.page-li--selected {
@@ -108,6 +119,11 @@
     box-shadow: 
         var(--btn-shadow-dist) var(--btn-shadow-dist) var(--color),
         var(--btn-shadow-dist-neg) var(--btn-shadow-dist-neg) var(--color);
+}
+
+.page-nav-link--selected {
+    background: var(--color);
+    color: white;
 }
 
 .page-nav-link--selected,
