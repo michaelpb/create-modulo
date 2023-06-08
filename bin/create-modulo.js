@@ -110,7 +110,7 @@ function main() {
 
     let templateName = null;
     if (args.length < 2) {
-        templateName = 'jamstack';
+        templateName = 'jamstack-cms';
     } else {
         templateName = args[1];
     }
