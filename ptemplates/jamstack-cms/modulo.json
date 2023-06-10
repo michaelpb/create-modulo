@@ -1,5 +1,5 @@
 {
     "isCopyOnly": "^static$",
-    "output": "build",
-    "input": "."
+    "output": "www",
+    "input": "src"
 }
