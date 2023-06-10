@@ -15,9 +15,10 @@
     modulo.register('util', getMarkdownData);
 </script>
 
+<!-- Load the base components as well -->
 <Library namespace="x" -src="/static/"></Library>
 <Component namespace="cms" name="MarkdownPage" mode="vanish-into-document">
-    <Template -src="./PageBody/PageBody.html"></Template>
+    <Template -src="./MarkdownPage/MarkdownPage.html"></Template>
     <Script -name="page">
         function prepareCallback(renderObj) {
             const { originalHTML } = element;
@@ -27,4 +28,3 @@
         }
     </Script>
 </Component>
-
