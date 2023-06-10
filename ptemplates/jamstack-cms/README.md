@@ -3,8 +3,8 @@ This is a Modulo.js website created with `create-modulo`
 Visit <https://modulojs.org> for documentation on Modulo.js
 
 This template has Netlify's Decap CMS ready to go. This allows you and your
-teammates to commit changes with a rich text editor, without coding or git
-knowledge. More info: <https://decapcms.org/>
+teammates to upload content and commit changes with a rich text editor, without
+any coding or git knowledge. More info: <https://decapcms.org/>
 
 
 # Usage
@@ -26,24 +26,25 @@ Use the following commands:
 
 - `npm start`
     - Will start a "dev server" at <https://127.0.0.1:3334/>
+- `npm run startcms`
+    - Runs backend for GUI Decap CMS: <https://127.0.0.1:3334/cms/static/admin/>
+    - This is intended for local content editing or debugging (NOT a live site)
+    - Note: Run this at the same time as `npm start` (e.g. in another terminal)
 - `npm run build`
     - Will do a static site build, and output to `build` bundling your
       JavaScript and CSS
     - Note: Until a Modulo DOM implementation is complete, in order to run the
       SSG build you may have to install the `puppeteer` dependency:
         - `npm install puppeteer`
-- `npm run startcms`
-    - Runs backend for GUI Decap CMS: <https://127.0.0.1:3334/cms/static/admin/>
-    - This is intended for local content editing or debugging (NOT a live site)
-    - Note: Run this at the same time as `npm start` (e.g. in another terminal)
 
 
 # Publishing checklist
 
+Launch your site on any web server that can host static sites (most of them).
+
 * [ ] To publish, make sure your web-server is serving the `build` directory.
-  If you are publishing with GitHub pages, then it cannot be changed to `docs`
-  by default, meaning you will need to change the `modulo.json` file to have
-  `"output": "build"` instead of `"output": "docs"`
+  Note that if you are publishing with GitHub Pages, then it must be `docs`, so
+  change `modulo.json` to `"output": "docs"` instead.
 
 * [ ] To enable the CMS on the remote server, you will need to reconfigure
   Decap CMS to work with whatever authentication system you want to use. The
