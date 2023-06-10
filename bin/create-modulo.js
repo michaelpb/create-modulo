@@ -39,6 +39,7 @@ function getPackageJSON(name) {
         "scripts": {
             "help": "modulocli help",
             "start": "modulocli srcserve",
+            "startcms": "npx netlify-cms-proxy-server",
             "build": "modulocli ssg -f",
         },
     };
