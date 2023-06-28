@@ -25,16 +25,17 @@ any coding or git knowledge. More info: <https://decapcms.org/>
 Use the following commands:
 
 - `npm start`
-    - Will start a "dev server" at <https://127.0.0.1:3334/>
+    - Will start a "dev server" at <http://127.0.0.1:3334/>
 - `npm run startcms`
-    - Runs backend for GUI Decap CMS: <https://127.0.0.1:3334/cms/static/admin/>
+    - Runs backend for GUI Decap CMS: <http://127.0.0.1:3334/static/cms/admin/>
     - This is intended for local content editing or debugging (NOT a live site)
     - Note: Run this at the same time as `npm start` (e.g. in another terminal)
 - `npm run build`
     - Will do a static site build, and output to `build` bundling your
       JavaScript and CSS
-    - Note: Until a Modulo DOM implementation is complete, in order to run the
-      SSG build you may have to install the `puppeteer` dependency:
+    - Alpha Note: Presently, building is done with `puppeteer`, the headless
+      browser engine that is unfortunately heavy-weight. If `puppeteer` isn't
+      installed, you may have to install the `puppeteer` dependency:
         - `npm install puppeteer`
 
 
