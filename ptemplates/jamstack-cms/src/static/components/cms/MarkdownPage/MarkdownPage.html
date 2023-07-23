@@ -6,6 +6,11 @@
     navbreadcrumb="{{ page.title }}"
 >
 
+    {# Ensure meta information is filled in #}
+    <meta name="description" content="{{ page.subtitle }}">
+    <meta name="keywords" content="">
+    <meta name="language" content="English">
+
     <h1 style="font-size: 3rem">{{ page.title }}</h1>
 
     {% if page.subtitle %}

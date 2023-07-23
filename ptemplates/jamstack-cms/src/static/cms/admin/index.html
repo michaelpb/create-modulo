@@ -5,25 +5,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="robots" content="noindex" />
         <title>Modulo - Decap CMS</title>
-
     </head>
     <body>
         <!-- Include the script that builds the page and powers Decap CMS -->
         <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
     </body>
 </html>
-<!-- Include modulo & load -->
+
+<!-- Alternative code: Include modulo & load into a custom root: -->
 <!--
 <style>
     #nc-root > header {
         z-index: 0; /* Reset z-index */
     }
 </style>
-<div class="nav-logo {% if props.navselected == "admin" %}nav-logo--selected{% endif %}">
-    <a href="/static/cms/admin/"><img src="/static/images/example_logo.svg" title="Site Logo" /></a>
-</div>
 <x-Page pagetitle="Decap CMS Admin Panel" navselected="admin">
     <div id="nc-root">
     </div>
 </x-Page>
+-->
+
+<!-- Add to Page.html to get the navbar to show the logo as selected: -->
+<!--
+    <div class="nav-logo {% if props.navselected == "admin" %}nav-logo--selected{% endif %}">
+        <a href="/static/cms/admin/"><img src="/static/images/example_logo.svg" title="Site Logo" /></a>
+    </div>
 -->
