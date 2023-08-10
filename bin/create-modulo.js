@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const http = require('http'); // or 'https' for https:// URLs
 const child_process = require("child_process");
 
 const TERM = {
@@ -23,7 +24,7 @@ TERM.LOGO = TERM.DIM + '[%]' + TERM.RESET;
 // TERM.LOGOLINE = TERM.MAGENTA_FG + '[%]' + TERM.RESET + TERM.UNDERSCORE;
 
 const log = (...args) => {
-    console.log(TERM.LOGO, '        ', ...args);
+    console.log(TERM.LOGO, '       ', ...args);
 };
 
 const logSuccess = (...args) => {
@@ -37,10 +38,9 @@ function getPackageJSON(name) {
         "private": true,
         "description": "...a new project...",
         "scripts": {
-            "help": "modulocli help",
-            "start": "modulocli srcserve",
-            "startcms": "cd src && npx netlify-cms-proxy-server",
-            "build": "modulocli ssg -f",
+            "start": "cd src && npm exec -y http-server",
+            "startcms": "cd src && npm exec -y netlify-cms-proxy-server",
+            "build": "npm install --dev && modulocli ssg -f",
         },
     };
 }
@@ -78,6 +78,20 @@ function parseArgs(argArray, shiftFirst=true) {
     return argArray;
 }
 
+function downloadFile(url, outPath, callback) {
+    const file = fs.createWriteStream(outPath, 'utf8');
+    //const request = http.get(url, (response) => {
+    http.get(url, response => {
+        response.pipe(file);
+        file.on("finish", () => {
+            file.close(); // After download completed close filestream
+            callback();
+        });
+    });
+}
+
+
+/*
 function npmInstallSync(name) {
     log(`Beginning "npm install express"`);
     child_process.execSync(`cd ${name} && npm install --save-dev express`);
@@ -87,10 +101,8 @@ function npmInstallSync(name) {
     const mjsInput = `${ name }/node_modules/mdu.js/src/Modulo.js`;
     const mjsOutput = `${ name }/src/static/js/Modulo.js`;
     copyRecursiveSync(mjsInput, mjsOutput);
-    logSuccess(`Run the following to get started:`);
-    log(`cd ${ name }/`);
-    log(`npm start`);
 }
+*/
 
 function jsonWriteSync(name) {
     const path = `./${ name }/package.json`;
@@ -101,6 +113,8 @@ function jsonWriteSync(name) {
 }
 
 function main() {
+    const VERSION = '0.0.53';
+    const FULL_URL = `http://unpkg.com/mdu.js@${ VERSION }/src/Modulo.js`;
     const args = parseArgs(Array.from(process.argv));
     let name = 'new-modulo-app';
     if (args.length < 1) {
@@ -120,7 +134,12 @@ function main() {
     const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
-    npmInstallSync(name);
+    // npmInstallSync(name);
+    downloadFile(FULL_URL, `${ name }/src/static/js/Modulo.js`, () => {
+        logSuccess(`Run the following to run http-server:`);
+        log(`cd ${ name }/`);
+        log(`npm start`);
+    });
 }
 
 main();
