@@ -25,27 +25,24 @@ any coding or git knowledge. More info: <https://decapcms.org/>
 Use the following commands:
 
 - `npm start`
-    - Will start a "dev server" at <http://127.0.0.1:3334/>
+    - Will start a "dev server" at <http://127.0.0.1:8080/>
 - `npm run startcms`
-    - Runs backend for GUI Decap CMS: <http://127.0.0.1:3334/static/cms/admin/>
+    - Runs backend for GUI Decap CMS: <http://127.0.0.1:8080/static/cms/admin/>
     - This is intended for local content editing or debugging (NOT a live site)
     - Note: Run this at the same time as `npm start` (e.g. in another terminal)
 - `npm run build`
-    - Will do a static site build, and output to `build` bundling your
-      JavaScript and CSS
-    - Alpha Note: Presently, building is done with `puppeteer`, the headless
-      browser engine that is unfortunately heavy-weight. If `puppeteer` isn't
-      installed, you may have to install the `puppeteer` dependency:
-        - `npm install puppeteer`
+    - Useful for testing server-side rendering: Generates automated static site
+      build locally, and output to `build` with bundles and SSR files.
+    - Note: Will install modulocli scripts, and heavy-weight "pupeteer" packages.
 
 
 # Publishing checklist
 
 Launch your site on any web server that can host static sites (most of them).
 
-* [ ] To publish, make sure your web-server is serving the `build` directory.
-  Note that if you are publishing with GitHub Pages, then it must be `docs`, so
-  change `modulo.json` to `"output": "docs"` instead.
+* [ ] To publish, make sure your web-host is configured to run `npm run build`
+  when code is updated, and serve the `build` directory. Some might work with
+  minimal configuration, otherwise you may have to build locally.
 
 * [ ] To enable the CMS on the remote server, you will need to reconfigure
   Decap CMS to work with whatever authentication system you want to use. The

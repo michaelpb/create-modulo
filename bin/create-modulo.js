@@ -40,7 +40,12 @@ function getPackageJSON(name) {
         "scripts": {
             "start": "cd src && npm exec -y http-server",
             "startcms": "cd src && npm exec -y netlify-cms-proxy-server",
-            "build": "npm install --dev && modulocli ssg -f",
+            "build": "npm install mdu.js && modulocli ssg -f",
+        },
+        "modulo": {
+            "isCopyOnly": "^static$",
+            "output": "build",
+            "input": "src"
         },
     };
 }
@@ -83,6 +88,7 @@ function downloadFile(url, outPath, callback) {
     //const request = http.get(url, (response) => {
     http.get(url, response => {
         response.pipe(file);
+        file.on("error", console.error);
         file.on("finish", () => {
             file.close(); // After download completed close filestream
             callback();
