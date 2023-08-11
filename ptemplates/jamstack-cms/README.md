@@ -25,15 +25,15 @@ any coding or git knowledge. More info: <https://decapcms.org/>
 Use the following commands:
 
 - `npm start`
-    - Will start a "dev server" at <http://127.0.0.1:8080/>
+    - Will start a "dev server" at <http://127.0.0.1:3334/>
 - `npm run startcms`
-    - Runs backend for GUI Decap CMS: <http://127.0.0.1:8080/static/cms/admin/>
+    - Runs backend for GUI Decap CMS: <http://127.0.0.1:3334/static/cms/admin/>
     - This is intended for local content editing or debugging (NOT a live site)
     - Note: Run this at the same time as `npm start` (e.g. in another terminal)
 - `npm run build`
-    - Useful for testing server-side rendering: Generates automated static site
-      build locally, and output to `build` with bundles and SSR files.
-    - Note: Will install modulocli scripts, and heavy-weight "pupeteer" packages.
+    - Useful for testing server-side rendering: Generates static site build
+      locally in `build/` directory.
+    - Note: This requires dependencies. It runs `npm install modulocli` first.
 
 
 # Publishing checklist

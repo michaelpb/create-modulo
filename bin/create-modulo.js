@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const http = require('http'); // or 'https' for https:// URLs
+const https = require('https'); // or 'https' for https:// URLs
 const child_process = require("child_process");
 
 const TERM = {
@@ -38,7 +38,7 @@ function getPackageJSON(name) {
         "private": true,
         "description": "...a new project...",
         "scripts": {
-            "start": "cd src && npm exec -y http-server",
+            "start": "npm exec -y http-server -- -p 3334 -e html src/",
             "startcms": "cd src && npm exec -y netlify-cms-proxy-server",
             "build": "npm install mdu.js && modulocli ssg -f",
         },
@@ -69,7 +69,6 @@ function copyRecursiveSync(src, dest) {
     }
 }
 
-
 function parseArgs(argArray, shiftFirst=true) {
     if (shiftFirst) {
         argArray.shift(); // always get rid of first argument
@@ -83,19 +82,30 @@ function parseArgs(argArray, shiftFirst=true) {
     return argArray;
 }
 
+// Helper utility to download files, using Node standard library
 function downloadFile(url, outPath, callback) {
-    const file = fs.createWriteStream(outPath, 'utf8');
-    //const request = http.get(url, (response) => {
-    http.get(url, response => {
-        response.pipe(file);
-        file.on("error", console.error);
-        file.on("finish", () => {
-            file.close(); // After download completed close filestream
-            callback();
-        });
+    https.get(url, response => {
+        if (response.statusCode >= 400) { // Errors, e.g. 404
+            log('-- !! create-modulo failed to download: ', outPath);
+            log(response);
+        } else if (response.statusCode >= 300) { // Redirect
+            downloadFile(response.headers.location, outPath, callback);
+        } else { // Normal case, e.g. 200 OK
+            const file = fs.createWriteStream(outPath, 'utf8');
+            file.on('finish', () => {
+                file.close(); // After download completed close filestream
+                callback();
+            });
+            response.pipe(file);
+        }
     });
 }
 
+function downloadModulo(name, callback) {
+    // npmInstallSync(name);
+    const URL53 = 'https://unpkg.com/mdu.js@0.0.53/src/Modulo.js';
+    downloadFile(URL53, `${ name }/src/static/js/Modulo.js`, callback);
+}
 
 /*
 function npmInstallSync(name) {
@@ -120,7 +130,8 @@ function jsonWriteSync(name) {
 
 function main() {
     const VERSION = '0.0.53';
-    const FULL_URL = `http://unpkg.com/mdu.js@${ VERSION }/src/Modulo.js`;
+    //const FULL_URL = `http://unpkg.com/mdu.js@${ VERSION }/src/Modulo.js`;
+    const FULL_URL = 'https://unpkg.com/mdu.js';
     const args = parseArgs(Array.from(process.argv));
     let name = 'new-modulo-app';
     if (args.length < 1) {
@@ -140,8 +151,7 @@ function main() {
     const templatePath = path.join(__dirname, '..', 'ptemplates', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
-    // npmInstallSync(name);
-    downloadFile(FULL_URL, `${ name }/src/static/js/Modulo.js`, () => {
+    downloadModulo(name, () => {
         logSuccess(`Run the following to run http-server:`);
         log(`cd ${ name }/`);
         log(`npm start`);

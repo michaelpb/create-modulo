@@ -1,3 +1,4 @@
+/* Store CSS variables in :host selector, accessible to styles in Page.html */
 :host {
     --footer-height: 100px;
     --navbar-height: 68px;
@@ -6,10 +7,14 @@
     --btn-shadow-dist: 4px;
     --btn-shadow-dist-neg: -4px;
     --color: indigo;
+    --color-fg: black;
     --color-content-bg: white;
+    --color-content-bg-semi: #EEEEEECC;
     --color-outline: #111;
+    --color-outline-semi: #00000088;
 }
 
+/* Create simple layout with a 900px max-width for content on desktop */
 .container {
     display: grid;
     grid-template-columns: 1fr minmax(auto, 900px) 1fr;
@@ -24,8 +29,8 @@
 }
 
 .page-content {
-    border: 1px solid #00000088;
-    box-shadow: 5px 5px #00000088;
+    border: 1px solid var(--color-outline-semi);
+    box-shadow: 5px 5px var(--color-outline-semi);
     background: var(--color-content-bg);
     border-radius: 0 5px 5px 5px;
     padding: 10px;
@@ -54,27 +59,13 @@
     margin-left: auto;
 }
 
-.page-nav .nav-logo--selected {
-    animation: SpinOnLoad 0.15s;
-    box-shadow: 0 0 0 15px inset var(--color);
-}
-
-@keyframes SpinOnLoad {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
 .page-nav img {
     max-width: 100%;
 }
 
 .page-nav ul {
     display: flex;
-    background: #EEEEEECC;
+    background: var(--color-content-bg-semi);
     margin: 0;
     padding: 0;
 }
@@ -84,7 +75,7 @@
     margin: 10px;
     padding: 10px;
     border-radius: 5px 5px 0 0;
-    border: 1px solid #00000088;
+    border: 1px solid var(--color-outline-semi);
 }
 
 .page-nav li.page-li--selected {
@@ -113,9 +104,6 @@
 
 .page-nav-link--selected,
 .page-nav-link:hover {
-    /*border-color: #EEEEEECC;
-    background-color: var(--color);
-    color: var(--color-content-bg);*/
     box-shadow: 
         var(--btn-shadow-dist) var(--btn-shadow-dist) var(--color),
         var(--btn-shadow-dist-neg) var(--btn-shadow-dist-neg) var(--color);
@@ -155,5 +143,23 @@
 }
 
 .breadcrumb--selected {
-    color: #00000088;
+    color: var(--color-outline-semi);
+}
+
+/* Mobile support */
+@media (max-width: 992px) {
+    .page-nav {
+        height: auto;
+    }
+    .page-nav ul {
+        flex-wrap: wrap;
+    }
+    .page-nav li {
+        border-radius: 100px;
+    }
+    .page-content {
+        margin: -1px;
+        padding: 2px;
+        width: 100%;
+    }
 }

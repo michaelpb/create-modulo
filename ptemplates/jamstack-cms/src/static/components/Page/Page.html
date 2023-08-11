@@ -13,11 +13,11 @@
         <meta name="language" content="English">
     -->
 
-    <!--
+    {% comment %}
         Since this Component is "vanish-into-document", it's allowed to include
         loose LINK and SCRIPT tags, which will be interpreted and built,
         allowing you to more easily integrate existing HTML files here. E.g.:
-    -->
+    {% endcomment %}
     <link rel="stylesheet" href="/static/css/site.css" />
 </head>
 <body>
@@ -35,8 +35,18 @@
                     </a>
                 </li>
             {% endfor %}
-            <div class="nav-logo {% if props.navselected == "admin" %}nav-logo--selected{% endif %}">
-                <a href="/static/cms/admin/"><img src="/static/images/example_logo.svg" title="Site Logo" /></a>
+
+            {# Show a "hidden" Admin Panel tab, only if selected #}
+            {% if props.navselected == "admin" %}
+                <li class="page-li--selected">
+                    <a class="page-nav-link page-nav-link--selected" href="/static/cms/admin/">
+                        Admin Panel
+                    </a>
+                </li>
+            {% endif %}
+
+            <div class="nav-logo">
+                <img src="/static/images/example_logo.svg" title="Site Logo" />
             </div>
         </ul>
     </nav>
