@@ -7,11 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="revisit-after" content="30 days">
 
-    <!--
-        <meta name="description" content="">
-        <meta name="keywords" content="">
-        <meta name="language" content="English">
-    -->
+    {# Uncomment the following to get started with SEO-friendly meta tags: #}
+    {% comment %}
+        <!-- (Note: Be sure to add the necessary props to x-Page!) -->
+        <meta name="description" content="{{ props.description }}">
+        <meta name="keywords" content="{{ props.keywords }}">
+        <meta name="language" content="{{ props.language|default:"English" }}">
+    {% endcomment %}
 
     {% comment %}
         Since this Component is "vanish-into-document", it's allowed to include
@@ -54,15 +56,15 @@
     <div class="page-container container {% if props.showarticles %}articles-container{% endif %}">
         <main class="page-content">
             {% if props.navbreadcrumb %}
-                    {% for page in staticdata.navigation %}
-                        {% if page.file == props.navselected %}
-                            <a href="/{{ page.file }}" title="{{ page.title }}" class="breadcrumb">
-                                {{ page.title }}
+                    {% for link in links_pages.list %}
+                        {% if link.file == props.navselected %}
+                            <a href="/{{ link.file }}" title="{{ link.title }}" class="breadcrumb">
+                                {{ link.title }}
                             </a>
                         {% endif %}
                     {% endfor %}
                     <span class="breadcrumb">/</span>
-                    <a href="#" title="{{ page.title }}" class="breadcrumb breadcrumb--selected">
+                    <a href="#" title="{{ props.pagetitle }}" class="breadcrumb breadcrumb--selected">
                         {{ props.navbreadcrumb }}
                     </a>
             {% endif %}
@@ -101,8 +103,11 @@
     </div>
 
     <footer class="page-footer">
-        &copy; {{ script.currentYear }} | All Rights Reserved by Page Author
+        &bull; {% for link in links_pages.list %}
+            <a href="/{{ link.file }}">{{ link.title }}</a> &bull;
+        {% endfor %} <br />
+        &copy; {{ script.currentYear }} All Rights Reserved by Page Author
         <!-- Feel free to delete this: -->
-        | <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
+        &bull; <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
     </footer>
 </body>

@@ -124,7 +124,13 @@
 .page-footer {
     height: var(--footer-height);
     text-align: center;
-    padding-top: 30px
+    padding-top: 30px;
+    background: var(--color-content-bg-semi);
+    color: var(--color-outline-semi);
+}
+
+.page-footer a { 
+    color: var(--color-outline-semi);
 }
 
 .article-nav li {
