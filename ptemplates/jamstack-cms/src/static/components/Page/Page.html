@@ -23,15 +23,15 @@
 <body>
     <nav class="page-nav container">
         <ul>
-            {% for page in staticdata.navigation %}
-                <li class="{% if page.file == props.navselected %}page-li--selected{% endif %}">
-                    <a href="/{{ page.file }}"
-                        title="{{ page.title }}"
+            {% for link in links_pages.list %}
+                <li class="{% if link.file == props.navselected %}page-li--selected{% endif %}">
+                    <a href="/{{ link.file }}"
+                        title="{{ link.title }}"
                         class="
                             page-nav-link
-                            {% if page.file == props.navselected %}page-nav-link--selected{% endif %}
+                            {% if link.file == props.navselected %}page-nav-link--selected{% endif %}
                         ">
-                        {{ page.title|upper }}
+                        {{ link.title|upper }}
                     </a>
                 </li>
             {% endfor %}
@@ -73,21 +73,21 @@
             <nav class="article-nav">
                 <ul>
                     <h1>Read one of our articles</h1>
-                    {% for article in staticdata.articles %}
-                        <li class="{% if article.file == props.navselected %}page-li--selected{% endif %}">
+                    {% for link in links_articles.list %}
+                        <li class="{% if link.file == props.navselected %}page-li--selected{% endif %}">
                                 <a
-                                    href="/{{ article.file }}"
-                                    title="{{ article.title }}"
-                                    class="page-nav-link {% if page.file == props.navselected %}page-nav-link--selected{% endif %}"
+                                    href="/{{ link.file }}"
+                                    title="{{ link.title }}"
+                                    class="page-nav-link {% if link.file == props.navselected %}page-nav-link--selected{% endif %}"
                                     style="background: var(--color); color: white; font-size: 1.6rem"
                                 >
-                                    <span style="min-width: 250px; display: inline-block">{{ article.title }}</span>
+                                    <span style="min-width: 250px; display: inline-block">{{ link.title }}</span>
                                     <span style="margin-left: 5px; font-weight: normal; font-size: 1.4rem;">
-                                        {{ article.byline }}
+                                        {{ link.byline }}
                                     </span>
                                     <span style="margin: 11px; float: right; margin-top: -18px; opacity: 0.9">
                                         <span style="font-size: 1.1rem; font-weight: normal;">
-                                            {{ article.estimate }}
+                                            {{ link.estimate }}
                                         </span><br />
                                         <span style="font-size: 1.1rem">READ MORE</span>
                                         &raquo;
