@@ -2,8 +2,9 @@ local_backend: true
 backend:
   name: git-gateway
   branch: main
-media_folder: "static/cms/uploads"
+media_folder: "/static/cms/uploads"
 collections:
+
   - label: "Articles"
     label_singular: "Article"
     name: "articles"
@@ -11,7 +12,7 @@ collections:
     extension: "html"
     format: "yaml-frontmatter"
     frontmatter_delimiter: [
-        '<!DOCTYPE HTML><script Modulo src="/static/js/Modulo.js" -src="/static/components/cms/"></script><cms-MarkdownPage><script type=md>---',
+        '<!DOCTYPE HTML><script Modulo src="/static/js/Modulo.js" -src="/static/cms/"></script><x-ArticlePage><script type=md>---',
         '---',
     ]
     create: true
@@ -25,7 +26,31 @@ collections:
   - label: "Links & Lists"
     label_singular: "Link"
     name: "data_links"
+    editor:
+        preview: false
     files:
+      - label: "Article listing"
+        name: "links_articles"
+        file: "/static/data/links/articles.json"
+        extension: "json"
+        format: "json"
+        fields:
+          - label: "Links"
+            label_singular: "Link"
+            name: "list"
+            widget: "list"
+            summary: '{{title}} ({{byline}}) - {{file}}'
+            fields:
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "By Line", name: "byline", widget: "string"}
+              - {label: "Read Time Estimation", name: "estimate", widget: "string"}
+              - label: "Article"
+                name: "file"
+                widget: "relation"
+                collection: "articles"
+                search_fields: [ 'slug', 'title', 'author' ]
+                value_field: '/articles/{{filename}}.{{extension}}'
+                display_fields: [ '{{slug}}: {{title}} ({{author}})' ]
 
       - label: "Page navigation"
         name: "links_pages"
@@ -38,27 +63,9 @@ collections:
             name: "list"
             widget: "list"
             fields:
-              - label: "File"
+              - {label: "Title", name: "title", widget: "string"}
+              - label: "URL or file name"
                 name: "file"
-                widget: "file"
-                media_library: { media_folder: "/", allow_multiple: false, config: { extension: "html" } }
-              - {label: "Title", name: "title", widget: "string"}
-
-
-      - label: "Article listing"
-        name: "links_articles"
-        file: "/static/data/links/articles.json"
-        extension: "json"
-        format: "json"
-        fields:
-          - label: "Links"
-            label_singular: "Link"
-            name: "list"
-            widget: "list"
-            fields:
-              - {label: "Article", name: "file", widget: "file", media_library: { media_folder: "/articles/" }}
-              - {label: "Title", name: "title", widget: "string"}
-              - {label: "By Line", name: "byline", widget: "string"}
-              - {label: "Read Time", name: "estimate", widget: "string"}
-
+                widget: "string"
+                pattern: ['^(/|http)', "Must start with '/' (local path) or 'http' (absolute URL)" ]
 
