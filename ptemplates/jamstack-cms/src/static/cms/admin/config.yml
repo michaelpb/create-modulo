@@ -5,12 +5,13 @@ backend:
 media_folder: "static/cms/uploads"
 collections:
   - label: "Articles"
+    label_singular: "Article"
     name: "articles"
     folder: "/articles/"
     extension: "html"
     format: "yaml-frontmatter"
     frontmatter_delimiter: [
-        '<!DOCTYPE HTML><script Modulo src="/static/js/Modulo.js" -src="/static/components/cms/"></script><cms-MarkdownPage>---',
+        '<!DOCTYPE HTML><script Modulo src="/static/js/Modulo.js" -src="/static/components/cms/"></script><cms-MarkdownPage><script type=md>---',
         '---',
     ]
     create: true
@@ -20,4 +21,44 @@ collections:
       - {label: "Author", name: "author", widget: "string"}
       - {label: "Publish Date", name: "date", widget: "datetime"}
       - {label: "Body", name: "body", widget: "markdown"}
+
+  - label: "Links & Lists"
+    label_singular: "Link"
+    name: "data_links"
+    files:
+
+      - label: "Page navigation"
+        name: "links_pages"
+        file: "/static/data/links/pages.json"
+        extension: "json"
+        format: "json"
+        fields:
+          - label: "Links"
+            label_singular: "Link"
+            name: "list"
+            widget: "list"
+            fields:
+              - label: "File"
+                name: "file"
+                widget: "file"
+                media_library: { media_folder: "/", allow_multiple: false, config: { extension: "html" } }
+              - {label: "Title", name: "title", widget: "string"}
+
+
+      - label: "Article listing"
+        name: "links_articles"
+        file: "/static/data/links/articles.json"
+        extension: "json"
+        format: "json"
+        fields:
+          - label: "Links"
+            label_singular: "Link"
+            name: "list"
+            widget: "list"
+            fields:
+              - {label: "Article", name: "file", widget: "file", media_library: { media_folder: "/articles/" }}
+              - {label: "Title", name: "title", widget: "string"}
+              - {label: "By Line", name: "byline", widget: "string"}
+              - {label: "Read Time", name: "estimate", widget: "string"}
+
 

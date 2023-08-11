@@ -11,9 +11,6 @@
         navbreadcrumb
     ></Props>
     <StaticData
-        -src="./data/links/navigation.js"
-    ></StaticData>
-    <StaticData
         -name="links_pages"
         -src="./data/links/pages.json"
     ></StaticData>
@@ -42,7 +39,6 @@
         text="Enter your comment text here!"
         fields:='["name", "subject", "text", "subscribe"]'
     ></State>
-
     <Template
         -src="./components/ContactForm/ContactForm.html"
     ></Template>
@@ -50,4 +46,3 @@
         -src="./components/ContactForm/ContactForm.css"
     ></Style>
 </Component>
-

@@ -27,7 +27,7 @@
         <ul>
             {% for link in links_pages.list %}
                 <li class="{% if link.file == props.navselected %}page-li--selected{% endif %}">
-                    <a href="/{{ link.file }}"
+                    <a href="{{ link.file }}"
                         title="{{ link.title }}"
                         class="
                             page-nav-link
@@ -58,7 +58,7 @@
             {% if props.navbreadcrumb %}
                     {% for link in links_pages.list %}
                         {% if link.file == props.navselected %}
-                            <a href="/{{ link.file }}" title="{{ link.title }}" class="breadcrumb">
+                            <a href="{{ link.file }}" title="{{ link.title }}" class="breadcrumb">
                                 {{ link.title }}
                             </a>
                         {% endif %}
@@ -78,7 +78,7 @@
                     {% for link in links_articles.list %}
                         <li class="{% if link.file == props.navselected %}page-li--selected{% endif %}">
                                 <a
-                                    href="/{{ link.file }}"
+                                    href="{{ link.file }}"
                                     title="{{ link.title }}"
                                     class="page-nav-link {% if link.file == props.navselected %}page-nav-link--selected{% endif %}"
                                     style="background: var(--color); color: white; font-size: 1.6rem"
@@ -104,7 +104,7 @@
 
     <footer class="page-footer">
         &bull; {% for link in links_pages.list %}
-            <a href="/{{ link.file }}">{{ link.title }}</a> &bull;
+            <a href="{{ link.file }}">{{ link.title }}</a> &bull;
         {% endfor %} <br />
         &copy; {{ script.currentYear }} All Rights Reserved by Page Author
         <!-- Feel free to delete this: -->
