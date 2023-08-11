@@ -1,40 +1,27 @@
 <!--
     This static header occurs across every CMS-built page, and includes extra
-    JS dependencies, along with a MarkdownPage component
+    JS dependencies, along with a ArticlePage component which applies Markdown
 -->
+<Modulo -src="../"></Modulo> <!-- Start with base components (i.e. /static/) -->
 
-<!-- Set up a markdown function, using "showdown" dependency -->
 <script Configuration -src="https://unpkg.com/showdown/dist/showdown.min.js">
+    // Register "getMarkdownData" function, using "showdown" to convert
+    // markdown to HTML (including parsing meta data)
     function getMarkdownData(source) {
         const converter = new showdown.Converter({ metadata: true });
         const html = converter.makeHtml(source);
         const data = converter.getMetadata();
-        data.body = Object.assign(String(html), { safe: true });
+        data.body = html; //Object.assign(String(html), { safe: true });
         return data;
     }
     modulo.register('util', getMarkdownData);
 </script>
 
-
-<!-- Include the base components as well -->
-<Modulo -src="/static/"></Modulo>
-
 <!-- Define a new ArticlePage component, which supports Markdown -->
 <Component name="ArticlePage" mode="vanish-into-document">
-    <Template -src="/static/components/ArticlePage/ArticlePage.html"></Template>
-    <Script -name="page">
-        function prepareCallback(renderObj) {
-            let { originalHTML } = element;
-            // Remove any "script type=md" prefixes
-            originalHTML = originalHTML.replace(/^<scri.t(.type=.?md.?)?>/i, '');
-            // Unescape (fixes issues with using HTML as source file)
-            originalHTML = originalHTML.replace(/&gt;/gi, '>').replace(/&lt;/gi, '<');
-            return modulo.registry.utils.getMarkdownData(originalHTML);
-        }
-    </Script>
+    <Template -src="../components/ArticlePage/ArticlePage.html"></Template>
+    <Script
+        -src="../components/ArticlePage/ArticlePage.js"
+        -name="page"
+    ></Script>
 </Component>
-
-<!-- Finally, do something a little "funky": Create an un-closed script tag, as
-a StaticData CPart, which the page content will "fill in" with remaining data: -->
-
-<script Component -name="article_page_source">
