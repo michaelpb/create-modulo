@@ -1,5 +1,0 @@
-{
-    "isCopyOnly": "^static$",
-    "output": "www",
-    "input": "src"
-}
