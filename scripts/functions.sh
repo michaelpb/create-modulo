@@ -34,9 +34,9 @@ function step() {
 }
 
 function stre() {
-    CMD="find . -type f -exec sed -i '$2' {} +"
-    echo "/// $1 | Recursive Find and Replace | $2"
-    echo "       | RUNNING: $CMD"
+    CMD="find $2 -type f -exec sed -i '$3' {} +"
+    echo "/// $1 | --       $3"
+    echo "    $1 | RUNNING: $CMD"
     set -e
     eval "$CMD"
 }
