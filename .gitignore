@@ -1,13 +1,11 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
-tmp-www-out
-
 # dependencies
+/built-project-templates
 /node_modules
 
 # testing
 /coverage
 .complexity-report/
+/tmp
 
 # misc
 .DS_Store
@@ -36,4 +34,3 @@ docs/build
 *.egg*
 *.log
 
-tmp

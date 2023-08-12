@@ -6,6 +6,10 @@
   "bin": {
     "create-modulo": "bin/create-modulo.js"
   },
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "prepublish": "bash scripts/build.sh"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/michaelpb/create-modulo.git"
