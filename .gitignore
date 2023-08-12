@@ -1,5 +1,8 @@
+# Build artifacts
+/build
+/lib
+
 # dependencies
-/built-project-templates
 /node_modules
 
 # testing

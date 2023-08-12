@@ -28,11 +28,19 @@ function print_usage_for_node_label() {
 }
 
 function step() {
-    echo "-------- $1 -----"
-    echo "-------- $1 ----- RUNNING: $2"
+    echo "%%% $1 | RUNNING: $2"
     set -e
     eval $2
 }
+
+function stre() {
+    CMD="find . -type f -exec sed -i '$2' {} +"
+    echo "/// $1 | Recursive Find and Replace | $2"
+    echo "       | RUNNING: $CMD"
+    set -e
+    eval "$CMD"
+}
+
 
 mkdir -p ./tmp
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)

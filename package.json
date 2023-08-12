@@ -16,7 +16,8 @@
   },
   "files": [
     "bin/create-modulo.js",
-    "built-project-templates/**/*"
+    "lib/**/*",
+    "build/**/*"
   ],
   "author": "michaelb",
   "license": "MIT",
