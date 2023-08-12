@@ -148,7 +148,7 @@ function main() {
     }
     log(`Project template: "${ templateName }"`);
 
-    const templatePath = path.join(__dirname, '..', 'built-project-templates', templateName);
+    const templatePath = path.join(__dirname, '..', 'build', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
     downloadModulo(name, () => {
