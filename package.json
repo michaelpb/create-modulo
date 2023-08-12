@@ -12,7 +12,7 @@
   },
   "files": [
     "bin/create-modulo.js",
-    "ptemplates/**/*"
+    "built-project-templates/**/*"
   ],
   "author": "michaelb",
   "license": "MIT",
