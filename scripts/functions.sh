@@ -28,17 +28,21 @@ function print_usage_for_node_label() {
 }
 
 function step() {
+    echo
     echo "%%% $1 | RUNNING: $2"
     set -e
     eval $2
+    echo
 }
 
 function stre() {
     CMD="find $2 -type f -exec sed -i '$3' {} +"
+    echo
     echo "/// $1 | --       $3"
     echo "    $1 | RUNNING: $CMD"
     set -e
     eval "$CMD"
+    echo
 }
 
 

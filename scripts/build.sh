@@ -44,20 +44,43 @@ step $L "rm -r $D/src/static/cms/uploads/"
 step $L "zip -qr build/modulo-jamstack-md.zip $D"
 
 
+echo "--  "
 echo "--  --------------------------------------------------- --"
-echo "--- Building QUICK Jamstack"
-D="build/quick-jamstack-md"
-L="QUICK_JAMSTACKCMS"
+echo "--- Building Jamstack"
+D="build/jamstack"
+L="JamStack"
+step $L "cp -r build/jamstack-md $D"
+step $L "rm -r $D/src/articles/"
+step $L "rm -r $D/src/static/cms/"
+step $L "rm $D/src/static/data/links/articles.json"
+step $L "zip -qr build/modulo-jamstack.zip $D"
+
+
+echo "--  --------------------------------------------------- --"
+echo "--- Building QUICKPAGES_MD"
+D="build/quick-pages-md"
+L="QuickPages_MD"
 step $L "cp -r build/jamstack-md/src/ $D"
-step $L "rm  $D/static/js/Modulo.js $D/static/index.html $D/static/cms/index.html"
-step $L "rm -r $D/static/components/  $D/static/data/"
+step $L "rm  $D/static/js/Modulo.js $D/static/index.html $D/.nojekyll"
+step $L "rm -r $D/static/components/  $D/static/data/ $D/static/cms/"
 
 echo "--- Building Replacements for Quick style"
 stre $L $D "s|src=\"/static/js/Modulo.js\"|src=\"$MODULO_URL\"|"
 stre $L $D "s|-src=\"/static/cms/\"|-src=\"$CREATE_URL/cms/index.html\"|"
+stre $L $D/articles/ "s|/static/images/|../static/images/|"
 stre $L $D "s|-src=\"/static/\"|-src=\"$CREATE_URL/index.html\"|"
 
 echo "--- Zipping / finalizing for Quick style"
-step $L "zip -qr build/modulo-jamstack-cms-quick-start.zip $D"
+step $L "zip -qr build/modulo-quick-pages-markdown.zip $D"
+
+
+
+echo "--  --------------------------------------------------- --"
+echo "--- Building QUICKPAGES"
+D="build/quick-pages"
+L="QuickPages"
+step $L "cp -r build/quick-pages-md/ $D"
+step $L "rm -r $D/articles"
+step $L "zip -qr build/modulo-quick-pages-markdown.zip $D"
 
 
