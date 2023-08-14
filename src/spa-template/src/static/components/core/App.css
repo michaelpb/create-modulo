@@ -1,0 +1,18 @@
+/* Create simple layout with a 900px max-width for content on desktop */
+:host {
+    display: grid;
+    grid-template-columns: 1fr minmax(auto, 900px) 1fr;
+}
+
+:host > * {
+    grid-column: 2;
+}
+
+main, section {
+    border: 1px solid black;
+    padding: 20px;
+    margin: 30px;
+    border-radius: 20px;
+    font-size: 1.5rem;
+}
+

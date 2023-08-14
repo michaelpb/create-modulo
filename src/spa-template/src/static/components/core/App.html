@@ -1,0 +1,25 @@
+<main>
+    <h1>New Modulo App</h1>
+</main>
+
+<main>
+  <p>Components example: <x-Btn>(Example button)</x-Btn></p>
+</main>
+
+<main>
+    <h2>Using Custom CParts:</h2>
+    <p><em>See /static/cparts/CustomCPartExample.js</em></p>
+    <section>
+        <h3>Function:
+            <x-Btn @click:=examplecustomcpart.exampleFunction>
+                Click me!
+            </x-Btn>
+        </h3>
+    </section>
+    <section>
+        <h3>API:</h3>
+        {% for repo in examplecustomcpart.exampleData %}
+            <p>{{ repo.name }}</p>
+        {% endfor %}
+    </section>
+</section>

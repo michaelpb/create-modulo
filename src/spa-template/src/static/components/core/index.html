@@ -1,0 +1,14 @@
+<!-- In this directory layout, we group our components into "Libraries" to keep
+things better organized. The "index.html" of each library in turn includes and
+configures all the components. -->
+
+<Component name="App">
+    <Template -src="./App.html"></Template>
+    <Style -src="./App.css"></Style>
+
+    <!-- Use "Custom CParts" to add in complex behavior defined by JS -->
+    <ExampleCustomCPart
+        example-property="modulojs"
+    ></ExampleCustomCPart>
+
+</Component>
