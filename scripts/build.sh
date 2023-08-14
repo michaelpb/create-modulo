@@ -24,6 +24,7 @@ echo "--  "
 echo "--  --------------------------------------------------- --"
 echo "--- Refreshing main / kitchen-sink template, building lib"
 step REFRESH "curl $MODULO_URL > src/project-template/src/static/js/Modulo.js"
+step REFRESH "curl $MODULO_URL > src/spa-template/src/static/lib/Modulo.js"
 step LIB 'cp -r src/project-template/src/static/ lib/'
 step LIB 'rm -r lib/js lib/css'
 
@@ -41,6 +42,7 @@ L="JamStack_Markdown"
 step $L "cp -r src/project-template/ $D"
 step $L "rm -r $D/src/static/cms/admin/"
 step $L "rm -r $D/src/static/cms/uploads/"
+step $L "cp src/README_SANS_CMS.md $D/README.md"
 step $L "zip -qr build/modulo-jamstack-md.zip $D"
 
 
@@ -53,6 +55,7 @@ step $L "cp -r build/jamstack-md $D"
 step $L "rm -r $D/src/articles/"
 step $L "rm -r $D/src/static/cms/"
 step $L "rm $D/src/static/data/links/articles.json"
+step $L "cp src/README_SANS_MD.md $D/README.md"
 step $L "zip -qr build/modulo-jamstack.zip $D"
 
 
@@ -83,4 +86,13 @@ step $L "cp -r build/quick-pages-md/ $D"
 step $L "rm -r $D/articles"
 step $L "zip -qr build/modulo-quick-pages-markdown.zip $D"
 
+
+
+echo "--  "
+echo "--  --------------------------------------------------- --"
+echo "--- Building SPA"
+D="build/spa"
+L="SPA"
+step $L "cp -r build/spa-template $D"
+step $L "zip -qr build/modulo-spa.zip $D"
 
