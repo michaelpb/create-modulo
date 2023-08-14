@@ -23,13 +23,13 @@ step CLEAN 'rmdir lib'
 echo "--  "
 echo "--  --------------------------------------------------- --"
 echo "--- Refreshing main / kitchen-sink template, building lib"
-step REFRESH "curl $MODULO_URL > project-template/src/static/js/Modulo.js"
-step LIB 'cp -r project-template/src/static/ lib/'
+step REFRESH "curl $MODULO_URL > src/project-template/src/static/js/Modulo.js"
+step LIB 'cp -r src/project-template/src/static/ lib/'
 step LIB 'rm -r lib/js lib/css'
 
 echo "--  "
 echo "--- Building variants"
-step JAMSTACKCMS 'cp -r project-template/ build/jamstack-cms'
+step JAMSTACKCMS 'cp -r src/project-template/ build/jamstack-cms'
 step JAMSTACKCMS 'zip -qr build/modulo-jamstack-cms.zip build/jamstack-cms'
 
 
@@ -38,7 +38,7 @@ echo "--  --------------------------------------------------- --"
 echo "--- Building Jamstack MD"
 D="build/jamstack-md"
 L="JamStack_Markdown"
-step $L "cp -r project-template/ $D"
+step $L "cp -r src/project-template/ $D"
 step $L "rm -r $D/src/static/cms/admin/"
 step $L "rm -r $D/src/static/cms/uploads/"
 step $L "zip -qr build/modulo-jamstack-md.zip $D"
