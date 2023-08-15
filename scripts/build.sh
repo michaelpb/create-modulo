@@ -6,7 +6,7 @@ cd $MY_PATH
 cd ..
 
 MODULO_VERSION="0.0.53"
-CREATE_MODULO_VERSION="0.0.30"
+CREATE_MODULO_VERSION="0.0.32"
 
 HOST_PREFIX="https://unpkg.com"
 MODULO_URL="$HOST_PREFIX/mdu.js@$MODULO_VERSION/src/Modulo.js"
@@ -84,7 +84,7 @@ D="build/quick-pages"
 L="QuickPages"
 step $L "cp -r build/quick-pages-md/ $D"
 step $L "rm -r $D/articles"
-step $L "zip -qr build/modulo-quick-pages-markdown.zip $D"
+step $L "zip -qr build/modulo-quick-pages.zip $D"
 
 
 
@@ -93,6 +93,6 @@ echo "--  --------------------------------------------------- --"
 echo "--- Building SPA"
 D="build/spa"
 L="SPA"
-step $L "cp -r build/spa-template $D"
+step $L "cp -r src/spa-template $D"
 step $L "zip -qr build/modulo-spa.zip $D"
 

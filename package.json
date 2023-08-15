@@ -1,6 +1,6 @@
 {
   "name": "create-modulo",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Starter projects for minimalist Web Component based framework",
   "homepage": "https://modulojs.org/",
   "bin": {

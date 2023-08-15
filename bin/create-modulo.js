@@ -101,10 +101,9 @@ function downloadFile(url, outPath, callback) {
     });
 }
 
-function downloadModulo(name, callback) {
-    // npmInstallSync(name);
-    const URL53 = 'https://unpkg.com/mdu.js@0.0.53/src/Modulo.js';
-    downloadFile(URL53, `${ name }/src/static/js/Modulo.js`, callback);
+function downloadModulo(name, version, callback) {
+    const URL = `https://unpkg.com/mdu.js@${ version }/src/Modulo.js`;
+    downloadFile(URL, `${ name }/src/static/js/Modulo.js`, callback);
 }
 
 /*
@@ -151,11 +150,18 @@ function main() {
     const templatePath = path.join(__dirname, '..', 'build', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
-    downloadModulo(name, () => {
-        logSuccess(`Run the following to run http-server:`);
-        log(`cd ${ name }/`);
-        log(`npm start`);
-    });
+    logSuccess(`Run the following to run http-server:`);
+    log(`cd ${ name }/`);
+    log(`npm start`);
+
+    let version = null;
+    if (args.includes('--download-modulo')) {
+        // TODO: Add feature to download given version
+        /*
+        downloadModulo(name, version, () => {
+        });
+        */
+    }
 }
 
 main();
