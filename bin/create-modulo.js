@@ -150,16 +150,16 @@ function main() {
     const templatePath = path.join(__dirname, '..', 'build', templateName);
     copyRecursiveSync(templatePath, name);
     jsonWriteSync(name);
-    logSuccess(`Run the following to run http-server:`);
+    logSuccess('---');
+    log('Continue to run http-server:');
     log(`cd ${ name }/`);
-    log(`npm start`);
+    log('npm run start');
 
     let version = null;
     if (args.includes('--download-modulo')) {
         // TODO: Add feature to download given version
         /*
-        downloadModulo(name, version, () => {
-        });
+        downloadModulo(name, version, () => { });
         */
     }
 }
