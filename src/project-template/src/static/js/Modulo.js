@@ -233,25 +233,31 @@ window.modulo.DEVLIB_SOURCE = (`
 modulo.register('core', class ValueResolver {
     constructor(contextObj = null) {
         this.ctxObj = contextObj;
+        this.isJSON = /^(true$|false$|null$|[^a-zA-Z])/; // "If not variable"
     }
 
     get(key, ctxObj = null) {
-        ctxObj = ctxObj || this.ctxObj;
-        if (!/^[a-z]/i.test(key) || Modulo.INVALID_WORDS.has(key)) { // XXX global ref
-            return JSON.parse(key); // Not a valid identifier, try JSON
-        }
-        return window.modulo.registry.utils.get(ctxObj, key); // Drill down
+        const { get } = window.modulo.registry.utils; // For drilling down "."
+        const obj = ctxObj || this.ctxObj; // Use given one or in general
+        return this.isJSON.test(key) ? JSON.parse(key) : get(obj, key);
     }
 
-    set(obj, keyPath, val) {
+    set(obj, keyPath, val, autoBind = false) {
         const index = keyPath.lastIndexOf('.') + 1; // Index at 1 (0 if missing)
         const key = keyPath.slice(index).replace(/:$/, ''); // Between "." & ":"
-        const path = keyPath.slice(0, index - 1); // Exclude "."
-        const target = index ? this.get(path, obj) : obj; // Get ctxObj or obj
-        target[key] = keyPath.endsWith(':') ? this.get(val) : val;
+        const prefix = keyPath.slice(0, index - 1); // Get before first "."
+        const target = index ? this.get(prefix, obj) : obj; // Drill down prefix
+
+        if (keyPath.endsWith(':')) { // If it's a dataProp style attribute
+            const parentKey = val.substr(0, val.lastIndexOf('.'));
+            val = this.get(val); // Resolve "val" from context, or JSON literal
+            if (autoBind && !this.isJSON.test(val) && parentKey.includes('.')) {
+                val = val.bind(this.get(parentKey)); // Parent is sub-obj, bind
+            }
+        }
+        target[key] = val; // Assign the value to it's parent object
     }
 });
-
 
 modulo.register('core', class DOMLoader {
     constructor(modulo) {
@@ -273,7 +279,6 @@ modulo.register('core', class DOMLoader {
     }
 
     loadFromDOM(elem, parentName = null, quietErrors = false) {
-        const resolver = new this.modulo.registry.core.ValueResolver(this.modulo);
         const { defaultDef } = this.modulo.config.modulo;
         const toCamel = s => s.replace(/-([a-z])/g, g => g[1].toUpperCase());
         const tagsLower = this.getAllowedChildTags(parentName);
@@ -712,9 +717,8 @@ modulo.register('coreDef', class Component {
 
     handleEvent(func, payload, ev) {
         this._lifecycle([ 'event' ]);
-        const { value } = (ev.target || {}); // Get value if is <INPUT>, etc
-        func.call(null, payload === undefined ? value : payload, ev);
-        this._lifecycle([ 'eventCleanup' ]); // todo: should this go below rerender()?
+        func(payload === undefined ? ev : payload);
+        this._lifecycle([ 'eventCleanup' ]);
         if (this.attrs.rerender !== 'manual') {
             this.element.rerender(); // always rerender after events
         }
@@ -733,21 +737,14 @@ modulo.register('coreDef', class Component {
     }
 
     eventMount({ el, value, attrName, rawName }) {
-        // Note: attrName becomes "event name"
-        // TODO: Make it @click.payload, and then have this see if '.' exists
-        // in attrName and attach as payload if so
         const { resolveDataProp } = this.modulo.registry.utils;
         const get = (key, key2) => resolveDataProp(key, el, key2 && get(key2));
-        const func = get(attrName);
-        this.modulo.assert(func, `No function found for ${rawName} ${value}`);
-        if (!el.moduloEvents) {
-            el.moduloEvents = {};
-        }
-        const listen = ev => {
+        this.modulo.assert(get(attrName), `Not found: ${ rawName }=${ value }`);
+        el.moduloEvents = el.moduloEvents || {}; // Attach if not already
+        const listen = ev => { // Define a listen event func to run handleEvent
             ev.preventDefault();
             const payload = get(attrName + '.payload', 'payload');
-            const currentFunction = resolveDataProp(attrName, el);
-            this.handleEvent(currentFunction, payload, ev);
+            this.handleEvent(resolveDataProp(attrName, el), payload, ev);
         };
         el.moduloEvents[attrName] = listen;
         el.addEventListener(attrName, listen);
@@ -768,7 +765,7 @@ modulo.register('coreDef', class Component {
         }
         const resolver = new this.modulo.registry.core.ValueResolver(// OLD TODO: Global modulo
                       this.element && this.element.getCurrentRenderObj());
-        resolver.set(el.dataProps, attrName + ':', value);
+        resolver.set(el.dataProps, attrName + ':', value, true);
         el.dataPropsAttributeNames[rawName] = attrName;
     }
 
@@ -1053,7 +1050,7 @@ modulo.register('cpart', class Style {
         }
         if (def.prefix && !selector.startsWith(def.prefix)) {
             // If it is not prefixed at this point, then be sure to prefix
-            selector = `${def.prefix} ${selector}`;
+            selector = `${ def.prefix } ${ selector }`;
         }
         return selector;
     }
@@ -1091,20 +1088,20 @@ modulo.register('cpart', class Style {
         const { mode } = modulo.definitions[this.conf.Parent] || {};
         const { innerDOM, Parent } = renderObj.component;
         const { isolateClass, isolateSelector, shadowContent } = this.conf;
-        if (isolateClass && isolateSelector) { // Attach "silo'ed" class to elem
+        if (isolateClass && isolateSelector && innerDOM) { // Attach classes
             const selector = isolateSelector.filter(s => s).join(',\n');
             for (const elem of innerDOM.querySelectorAll(selector)){
                 elem.classList.add(isolateClass);
             }
         }
-        if (shadowContent) {
+        if (shadowContent && innerDOM) {
             const style = window.document.createElement('style');
             style.textContent = shadowContent;
             innerDOM.append(style); // Append to element to reconcile
         }
     }
 }, {
-    AutoIsolate: true, // null is "default behavior" (autodetect)
+    AutoIsolate: true, // true is "default behavior" (autodetect)
     isolateSelector: null, // Later has list of selectors
     isolateClass: null, // No class-based isolate
     prefix: null, // No prefix-based isolation
@@ -1141,8 +1138,9 @@ modulo.register('cpart', class Template {
     }
 
     renderCallback(renderObj) {
-        // Set component.innerHTML (for DOM reconciliation) with render() call
-        renderObj.component.innerHTML = this.render(renderObj);
+        if (this.conf.Name === 'template' || this.conf.active) { // If primary
+            renderObj.component.innerHTML = this.render(renderObj); // Do render
+        }
     }
 
     parseExpr(text) {
@@ -1152,7 +1150,6 @@ modulo.register('cpart', class Template {
         for (const [ fName, arg ] of filters.map(s => s.trim().split(':'))) {
             // TODO: Store a list of variables / paths, so there can be
             // warnings or errors when variables are unspecified
-            // TODO: Support this-style-var being turned to thisStyleVar
             const argList = arg ? ',' + this.parseVal(arg) : '';
             results = `G.filters["${fName}"](${results}${argList})`;
         }
@@ -1165,14 +1162,18 @@ modulo.register('cpart', class Template {
         return string.split(RegExp(regExpText));
     }
 
+    toCamel(string) { // Takes kebab-case and converts toCamelCase
+        return string.replace(/-([a-z])/g, g => g[1].toUpperCase());
+    }
+
     parseVal(string) {
         // Parses str literals, de-escaping as needed, numbers, and context vars
-        const { cleanWord } = this.modulo.registry.utils;
+        const { cleanWord } = modulo.registry.utils; // TODO: RM this "safety"
         const s = string.trim();
         if (s.match(/^('.*'|".*")$/)) { // String literal
             return JSON.stringify(s.substr(1, s.length - 2));
         }
-        return s.match(/^\d+$/) ? s : `CTX.${cleanWord(s)}`
+        return s.match(/^\d+$/) ? s : `CTX.${ cleanWord(this.toCamel(s)) }`
     }
 
     escapeText(text) {
@@ -1509,7 +1510,7 @@ modulo.register('cpart', class State {
 
     stateChangedCallback(name, value, el) {
         this.modulo.registry.utils.set(this.data, name, value);
-        if (!this.conf.Only || this.conf.Only.includes(name)) { // TODO: Test & document
+        if (!this.conf.Only || this.conf.Only.includes(name)) { // TODO: Test
             this.element.rerender();
         }
     }
