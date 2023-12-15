@@ -23,7 +23,7 @@ window.Modulo = class Modulo {
     register(type, cls, defaults = undefined) {
         type = (`${type}s` in this.registry) ? `${type}s` : type; // pluralize
         if (type in this.registry.registryCallbacks) {
-            this.registry.registryCallbacks[type](this,  cls, defaults);
+            cls = this.registry.registryCallbacks[type](this,  cls) || cls;
         }
         this.assert(type in this.registry, 'Unknown registry type: ' + type);
         this.registry[type][cls.name] = cls;
@@ -34,10 +34,11 @@ window.Modulo = class Modulo {
         }
     }
 
-    instance(def, extra) {
+    instance(def, extra, inst = null) {
         const isLower = key => key[0].toLowerCase() === key[0];
-        const registry = def.Type === 'Component' ? 'coreDefs' : 'cparts'; // TODO: make compatible with any registration type
-        const inst = new this.registry[registry][def.Type](this, def, extra.element || null); // TODO rm the element arg
+        const coreDefSet = { Component: 1, Artifact: 1 }; // TODO: make compatible with any registration type
+        const registry = (def.Type in coreDefSet) ? 'coreDefs' : 'cparts';
+        inst = inst || new this.registry[registry][def.Type](this, def, extra.element || null); // TODO rm the element arg
         const id = ++window._moduloID;
         //const conf = Object.assign({}, this.config[name.toLowerCase()], def);
         const conf = Object.assign({}, def); // Just shallow copy "def"
@@ -73,10 +74,10 @@ window.Modulo = class Modulo {
         }
     }
 
-    preprocessAndDefine(cb) {
+    preprocessAndDefine(cb, prefix = 'Def') {
         this.fetchQueue.wait(() => {
-            this.repeatProcessors(null, 'DefBuilders', () => {
-                this.repeatProcessors(null, 'DefFinalizers', cb || (() => {}));
+            this.repeatProcessors(null, prefix + 'Builders', () => {
+                this.repeatProcessors(null, prefix + 'Finalizers', cb || (() => {}));
             });
         });
     }
@@ -95,20 +96,20 @@ window.Modulo = class Modulo {
         const defaults = this.config.modulo['default' + field] || [];
         while (changed) {
             this.assert(this._configSteps++ < 90000, 'Config steps: 90000+');
-            changed = false;
+            changed = false; // TODO: Is values deterministic in order? (Solution, if necessary: definitions key order arr)
             for (const def of (defs || Object.values(this.definitions))) {
                 const processors = def[field] || defaults;
                 //changed = changed || this.applyProcessors(def, processors);
                 const result = this.applyNextProcessor(def, processors);
-                if (result === 'wait') { // TODO: Test or document, or delete
-                    changed = false;
+                if (result === 'wait') { // TODO: Refactor logic here & 
+                    changed = null; // null always triggers an enqueueAll
                     break;
                 }
                 changed = changed || result;
             }
         }
         const repeat = () => this.repeatProcessors(defs, field, cb);
-        if (Object.keys(this.fetchQueue ? this.fetchQueue.queue : {}).length === 0) { // TODO: Remove ?: after core object refactor
+        if (changed !== null && Object.keys(this.fetchQueue ? this.fetchQueue.queue : {}).length === 0) { // TODO: Remove ?: after core object refactor
             if (cb) {
                 cb(); // Synchronous path
             }
@@ -150,8 +151,6 @@ window.Modulo.INVALID_WORDS = new Set((`
     typeof var let void  while with await async true false
 `).split(/\s+/ig));
 
-// TODO: Condense window.moduloBuild into window.modulo as well, gets "hydrated"
-//window.modulo = Object.assign(new Modulo(), window.modulo || {});
 // Create a new modulo instance to be the global default instance
 window.modulo = new window.Modulo();
 if (typeof modulo === "undefined" || modulo.id !== window.modulo.id) {
@@ -186,49 +185,8 @@ modulo.register('coreDef', class Modulo {}, {
     DefLoaders: [ 'DefTarget', 'DefinedAs', 'Src', 'Content' ],
     defaultDef: { DefTarget: null, DefinedAs: null, DefName: null },
     defaultDefLoaders: [ 'DefTarget', 'DefinedAs', 'Src' ],
-    defaultFactory: [ 'RenderObj', 'factoryCallback' ],
+    defaultFactory: [ 'RenderObj', 'factoryCallback' ], // TODO: this might be dead code?
 });
-
-window.modulo.DEVLIB_SOURCE = (`
-<Artifact name="css" bundle="link[rel=stylesheet]" exclude="[modulo-asset]">
-    <Template>{% for elem in bundle %}{{ elem.bundledContent|safe }}{% endfor %}
-              {% for css in assets.cssAssetsArray %}{{ css|safe }}
-              {% endfor %}</Template>
-</Artifact>
-<Artifact name="js" bundle="script[src]" exclude="[modulo-asset]">
-    <Template macros="yesplease">window.moduloBuild = window.moduloBuild || { modules: {}, nameToHash: {} };
-        {% for name, hash in assets.nameToHash %}{% if hash in assets.moduleSources %}{% if name|first is not "_" %}
-            window.moduloBuild.modules["{{ hash }}"] = function {{ name }} (modulo) {
-                {{ assets.moduleSources|get:hash|safe }}
-            };
-            window.moduloBuild.nameToHash.{{ name }} = "{{ hash }}";
-        {% endif %}{% endif %}{% endfor %}
-        window.moduloBuild.definitions = { {% for name, value in definitions %}
-            {% if name|first is not "_" %}{{ name }}: {{ value|json|safe }},{% endif %} 
-        {% endfor %} };
-        {% for elem in bundle %}{{ elem.bundledContent|safe }}{% endfor %}
-        modulo.assets.modules = window.moduloBuild.modules;
-        modulo.assets.nameToHash = window.moduloBuild.nameToHash;
-        modulo.definitions = window.moduloBuild.definitions;
-        {% for name in assets.mainRequires %}
-            modulo.assets.require("{{ name|escapejs }}");
-        {% endfor %}
-    </Template>
-</Artifact>
-<Artifact name="html" remove="script[src],link[href],[modulo-asset],template[modulo],script[modulo],modulo">
-    <Script>
-        const head = window.document.head || { innerHTML: '' };
-        const body = window.document.body || { innerHTML: '', id: '' };
-        script.exports.prefix = '<!DOCTYPE html><html><head>' + head.innerHTML;
-        script.exports.interfix = '</head><body id="' + body.id + '">' + body.innerHTML;
-        script.exports.suffix = '</body></html>';
-    </S` + `cript>
-    <Template>{{ script.prefix|safe }}<link rel="stylesheet" href="{{ definitions._artifact_css.OutputPath }}" />
-        {{ script.interfix|safe }}<script src="{{ definitions._artifact_js.OutputPath }}"></s` + `cript>
-        {{ script.suffix|safe }}</Template>
-</Artifact>
-`).replace(/^\s+/gm, '');
-
 
 modulo.register('core', class ValueResolver {
     constructor(contextObj = null) {
@@ -267,7 +225,7 @@ modulo.register('core', class DOMLoader {
     getAllowedChildTags(parentName) {
         let tagsLower = this.modulo.config.domloader.topLevelTags; // "Modulo"
         if (/^_[a-z][a-zA-Z]+$/.test(parentName)) { // _likethis, e.g. _artifact
-            tagsLower = [ parentName.toLowerCase().replace('_', '') ];
+            tagsLower = [ parentName.toLowerCase().replace('_', '') ]; // Dead code?
         } else if (parentName) { // Normal parent, e.g. Library, Component etc
             const parentDef = this.modulo.definitions[parentName];
             const msg = `Invalid parent: ${ parentName } (${ parentDef })`;
@@ -288,7 +246,7 @@ modulo.register('core', class DOMLoader {
             if (node._moduloLoadedBy || partTypeLC === null) {
                 continue; // Already loaded, or an ignorable or silenced error
             }
-            node._moduloLoadedBy = this.modulo.id; // First time loading, mark
+            node._moduloLoadedBy = this.modulo.id; // Mark as having loaded this
             // Valid definition, now create the "def" object
             const def = Object.assign({ Parent: parentName }, defaultDef);
             def.Content = node.tagName === 'SCRIPT' ? node.textContent : node.innerHTML;
@@ -351,12 +309,13 @@ modulo.register('processor', function srcSync (modulo, def, value) {
 });
 
 modulo.register('processor', function defTarget (modulo, def, value) {
-    const resolverName = def.DefResolver || 'ValueResolver'; // TODO: document, make it switch to Template Resolver if there is {% or {{
+    const resolverName = def.DefResolver || 'ValueResolver'; // TODO: document
     const resolver = new modulo.registry.core[resolverName](modulo);
-    const target = value === null ? def : resolver.get(value);
-    for (const [ key, defValue ] of Object.entries(def)) {
+    const target = value === null ? def : resolver.get(value); // Target object
+    for (const [ key, defValue ] of Object.entries(def)) { // Resolve all values
         if (key.endsWith(':') || key.includes('.')) {
             delete def[key]; // Remove & replace unresolved value
+            //resolver.set(/[^a-z]/.test(key) ? target : def, key, defValue); // TODO: Probably should be this -- not sure how this interacts with if
             resolver.set(/^[a-z]/.test(key) ? target : def, key, defValue);
         }
     }
@@ -446,104 +405,124 @@ modulo.register('processor', function mainRequire (modulo, conf, value) {
     modulo.assets.mainRequire(value);
 });
 
-modulo.register('cpart', class Artifact {
-    buildCommandCallback({ modulo, def }) {
-        const finish = () => {
-            const { saveFileAs, hash } = modulo.registry.utils;
-            const children = (def.ChildrenNames || []).map(n => modulo.definitions[n]);
-            //for (const child of children
-            const tDef = children.filter(({ Type }) => Type === 'Template')[0] || null;
-            const sDef = children.filter(({ Type }) => Type === 'Script')[0] || null;
-            let result = { exports: {} };
-            if (sDef) {
-                result = modulo.assets.require(sDef.DefinitionName);
-            }
-            const ctx = Object.assign({}, modulo, { script: result.exports });
-            ctx.bundle = bundledElems;
-            if (!(tDef.DefinitionName in modulo.assets.nameToHash)) {
-                modulo.registry.cparts.Template.TemplatePrebuild(modulo, tDef);
-            }
-            const template = modulo.instance(tDef, { });
-            template.initializedCallback();
-            let code = template.render(ctx);
-            if (tDef && tDef.macros) { // TODO: Refactor this code, maybe turn into Template core feature to allow 2 tier / "macro" templating?
-                const tDef2 = Object.assign({}, tDef, {
-                    modeTokens: ['/' + '*-{-% %-}-*/', '/' + '*-{-{ }-}-*/', '/' + '*-{-# #-}-*/'],
-                    modes: {
-                        ['/' + '*-{-%']: template.modes['{%'], // alias
-                        ['/' + '*-{-{']: template.modes['{{'], // alias
-                        ['/' + '*-{-#']: template.modes['{#'], // alias
-                        text: template.modes.text,
-                    },
-                    Content: code,
-                    DefinitionName: tDef.DefinitionName + '_macro',
-                    Hash: undefined,
-                });
-                if (!(tDef2.DefinitionName in modulo.assets.nameToHash)) {
-                    modulo.registry.cparts.Template.TemplatePrebuild(modulo, tDef2);
-                }
-                const template2 = modulo.instance(tDef2, { });
-                template2.initializedCallback();
-                code = template2.render(ctx);
-            }
-            def.FileName = `modulo-build-${ hash(code) }.${ def.name }`;
-            if (def.name === 'html') { // TODO: Make this only happen during SSG
-                def.FileName = window.location.pathname.split('/').pop() || 'index.html';
-            }
-            def.OutputPath = saveFileAs(def.FileName, code);
-        }
-
-        const bundledElems = [];
-        if (def.bundle) {
-            for (const elem of document.querySelectorAll(def.bundle)) {
-                if (def.exclude && elem.matches(def.exclude)) {
-                    continue;
-                }
-                const url = elem.getAttribute('src') || elem.getAttribute('href');
-                if (url) { // Needed, since otherwise it chokes on blank src
-                    modulo.fetchQueue.fetch(url).then(text => {
-                        delete modulo.fetchQueue.data[url];
-                        elem.bundledContent = text;
-                    });
-                }
-                bundledElems.push(elem);
-            }
-        }
-        if (def.remove) {
-            document.querySelectorAll(def.remove).forEach(elem => elem.remove());
-        }
-        modulo.fetchQueue.enqueueAll(() => finish(bundledElems));
-    }
-}, {
-    Contains: 'cparts',
+modulo.config.artifact = {
+    BuildCommandFinalizers: [ 'SaveArtifact' ],
+    SaveArtifact: null,
     DefinedAs: 'name',
-    RenderObj: 'artifact',
-    DefLoaders: [ 'DefTarget', 'DefinedAs', 'Src', 'Content' ],
+    exclude: '[modulo-asset]',
+};
+modulo.register('coreDef', class Artifact {
+    static SaveArtifact (modulo, def, value) { // Build processor
+        const artifactInstance = modulo.instance(def, { });
+        artifactInstance.buildCommand(document); // e is document or target
+        return true; // Always wait for next
+    }
+
+    getBundle(targetElem) { // TODO: Mix in targetElem to QSA
+        const bundledElems = [];
+        for (const elem of targetElem.querySelectorAll(this.conf.bundle)) {
+            const url = elem.getAttribute('src') || elem.getAttribute('href');
+            if (this.conf.exclude && elem.matches(this.conf.exclude) || !url) {
+                continue; // Need skip, otherwise it chokes assets or blank src
+            }
+            this.modulo.fetchQueue.fetch(url).then(text => { // Enqueue fetch
+                delete this.modulo.fetchQueue.data[url]; // remove from cache
+                elem.bundledContent = text; // attach back to element for later
+            });
+            bundledElems.push(elem);
+        }
+        return bundledElems;
+    }
+    getTemplateContext(targetElem) {
+        const head = targetElem.head || { innerHTML: '' };
+        const body = targetElem.body || { innerHTML: '', id: '' };
+        const htmlPrefix = '<!DOCTYPE html><html><head>' + head.innerHTML;
+        const htmlInterfix = '</head><body id="' + body.id + '">' + body.innerHTML;
+        const htmlSuffix = '</body></html>';
+        const bundle = this.conf.bundle ? this.getBundle(targetElem) : null;
+        const extras = { htmlPrefix, htmlInterfix, htmlSuffix, bundle };
+        return Object.assign({ }, this.modulo, extras);
+    }
+
+    buildCommand(targetElem) {
+        const { Template } = this.modulo.registry.cparts;
+        const { saveFileAs, hash } = this.modulo.registry.utils;
+        const { DefinitionName, remove, urlName, name, Content } = this.conf;
+        const def = this.modulo.definitions[DefinitionName]; // Get original def
+        if (remove) { // Need to remove elements from document first
+            targetElem.querySelectorAll(remove).forEach(elem => elem.remove());
+        }
+        this.templateContext = this.getTemplateContext(targetElem); // Queue up
+        this.modulo.fetchQueue.enqueueAll(() => { // Drain queue before continue
+            const tmplt = new Template(Content); // Render content
+            const content = tmplt.render(this.templateContext);
+            def.FileName = `modulo-build-${ hash(content) }.${ name }`;
+            if (urlName) { // Guess filename based on URL (or use as default)
+                def.FileName = window.location.pathname.split('/').pop() || urlName;
+            }
+            def.OutputPath = saveFileAs(def.FileName, content); // Attempt save
+        });
+    }
 });
 
-/*
-modulo.config.reconciler = {
-    directiveShortcuts: [ [ /^@/, 'component.event' ],
-                          [ /:$/, 'component.dataProp' ] ],
-    directives: [ 'component.event', 'component.dataProp' ],
-};
-*/
+modulo._DEVLIB_SOURCE = (`
+<Artifact name="css" bundle="link[rel=stylesheet]">
+    {% for elem in bundle %}{{ elem.bundledContent|default:''|safe }}
+    {% endfor %}{% for css in assets.cssAssetsArray %}
+    {{ css|safe }}{% endfor %}
+</Artifact>
+<Artifact name="js" bundle="script[src]">
+    window.moduloBuild = window.moduloBuild || { modules: {}, nameToHash: {} };
+    {% for name, hash in assets.nameToHash %}{% if hash in assets.moduleSources %}{% if name|first is not "_" %}
+        window.moduloBuild.modules["{{ hash }}"] = function {{ name }} (modulo) {
+            {{ assets.moduleSources|get:hash|safe }}
+        };
+        window.moduloBuild.nameToHash.{{ name }} = "{{ hash }}";
+    {% endif %}{% endif %}{% endfor %}
+    window.moduloBuild.definitions = { {% for name, value in definitions %}
+        {% if name|first is not "_" %}{{ name }}: {{ value|json|safe }},{% endif %}
+    {% endfor %} };
+    {% if bundle %}
+        {% for elem in bundle %}{{ elem.bundledContent|default:''|safe }}{% endfor %}
+        modulo.assets.modules = window.moduloBuild.modules;
+        modulo.assets.nameToHash = window.moduloBuild.nameToHash;
+        modulo.definitions = window.moduloBuild.definitions;
+    {% endif %}
+    {% for name in assets.mainRequires %}
+        modulo.assets.require("{{ name|escapejs }}");
+    {% endfor %}
+</Artifact>
+<Artifact name="html" url-name="index.html" remove="script[src],link[href],[modulo-asset],template[modulo],script[modulo],modulo">
+    {{ htmlPrefix|safe }}<link rel="stylesheet" href="{{ definitions._artifact_css.OutputPath }}" />
+    {{ htmlInterfix|safe }}<script src="{{ definitions._artifact_js.OutputPath }}"></s` + `cript>
+    {{ htmlSuffix|safe }}
+</Artifact>
+`).replace(/^\s+/gm, ''); // Removing indentation from DEVLIB_SOURCE
 
 modulo.config.component = {
     mode: 'regular',
     rerender: 'event',
-    engine: 'Reconciler', // TODO: 'Engine':, depends on Instbuilders
-    // namespace: 'x',
+    engine: 'Reconciler', // TODO: rm, once test is fixed
     Contains: 'cparts',
     CustomElement: 'window.HTMLElement',
     DefinedAs: 'name',
+    BuildLifecycle: 'build',
     RenderObj: 'component', // Make features available as "renderObj.component" 
     // Children: 'cparts', // How we can implement Parentage: Object.keys((get('modulo.registry.' + value))// cparts))
     DefLoaders: [ 'DefTarget', 'DefinedAs', 'Src', 'Content' ],
-    DefBuilders: [ 'CustomElement', 'Code' ],
+    DefBuilders: [ 'CustomElement', 'CodeTemplate' ],
     DefFinalizers: [ 'MainRequire' ],
+    BuildCommandBuilders: [ 'Prebuild|BuildLifecycle', 'BuildLifecycle' ],
     Directives: [ 'slotLoad', 'eventMount', 'eventUnmount', 'dataPropMount', 'dataPropUnmount' ],
-    //InstBuilders: [ 'CreateChildren' ],
+    CodeTemplate: `
+        const def = modulo.definitions['{{ def.DefinitionName }}'];
+        class {{ def.className }} extends {{ def.baseClass|default:'window.HTMLElement' }} {
+            constructor() { super(); this.init(); }
+        }
+        modulo.registry.utils.initComponentClass(modulo, def, {{ def.className }});
+        window.customElements.define(def.TagName, {{ def.className }});
+        return {{ def.className }};
+    `.replace(/^\s+/gm, ''),
 };
 
 modulo.register('coreDef', class Component {
@@ -556,16 +535,14 @@ modulo.register('coreDef', class Component {
         def.name = def.name || def.DefName || def.Name;
         def.TagName = `${ def.namespace }-${ def.name }`.toLowerCase();
         def.MainRequire = def.DefinitionName;
-        const className =  `${ def.namespace }_${ def.name }`;
-        def.Code = `
-            const def = modulo.definitions['${ def.DefinitionName }'];
-            class ${ className } extends ${ value } {
-                constructor() { super(); this.init(); }
-            }
-            modulo.registry.utils.initComponentClass(modulo, def, ${ className });
-            window.customElements.define(def.TagName, ${ className });
-            return ${ className };
-        `;
+        def.className =  def.className || `${ def.namespace }_${ def.name }`;
+    }
+
+    static BuildLifecycle (modulo, def, value) {
+        for (const elem of document.querySelectorAll(def.TagName)) {
+            elem.cparts.component._lifecycle([ value ]); // Run the lifecycle
+        }
+        return true;
     }
 
     rerender(original = null) {
@@ -898,15 +875,6 @@ modulo.register('core', class AssetManager {
         }
     }
 
-    registerStylesheet(text) {
-        const hash = this.modulo.registry.utils.hash(text);
-        if (!(hash in this.stylesheets)) {
-            this.stylesheets[hash] = true;
-            this.cssAssetsArray.push(text);
-            this.appendToHead('style', text);
-        }
-    }
-
     appendToHead(tagName, codeStr) {
         const doc = window.document;
         const elem = doc.createElement(tagName);
@@ -1018,9 +986,18 @@ modulo.register('cpart', class Props {
     }
 });
 
+modulo.config.style = {
+    AutoIsolate: true, // true is "default behavior" (autodetect)
+    urlReplace: null, // null is "default behavior" (only if -src is specified)
+    isolateSelector: null, // Later has list of selectors
+    isolateClass: null, // By default, it does not use class isolation
+    prefix: null, // Used to specify prefix-based isolation (most common)
+    corePseudo: ['before', 'after', 'first-line', 'last-line' ],
+    DefBuilders: [ 'AutoIsolate', 'Content|ProcessCSS' ],
+};
 modulo.register('cpart', class Style {
     static AutoIsolate(modulo, def, value) {
-        const { AutoIsolate } = modulo.registry.cparts.Style;
+        const { AutoIsolate } = modulo.registry.cparts.Style; // (for recursion)
         const { namespace, mode, Name } = modulo.definitions[def.Parent] || {};
         if (value === true) { // Auto-detect based on parent's mode
             AutoIsolate(modulo, def, mode); // Check "mode" instead (1x recurse)
@@ -1041,15 +1018,22 @@ modulo.register('cpart', class Style {
                 return hostPrefix + (hostClause ? `:is(${ hostClause })` : '');
             });
         }
-        const selectorOnly = selector.replace(/\s*[\{,]\s*,?$/, '').trim();
+        let selectorOnly = selector.replace(/\s*[\{,]\s*,?$/, '').trim();
         if (def.isolateClass && selectorOnly !== hostPrefix) {
             // Remove extraneous characters (and strip ',' for isolateSelector)
-            const suffix = /{\s*$/.test(selector) ? ' {' : ', ';
-            def.isolateSelector.push(selectorOnly);
+            let suffix = /{\s*$/.test(selector) ? ' {' : ', ';
+            selectorOnly = selectorOnly.replace(/:(:?[a-z-]+)\s*$/i, (all, pseudo) => {
+                if (pseudo.startsWith(':') || def.corePseudo.includes(pseudo)) {
+                    suffix = ':' + pseudo + suffix; // Attach to suffix, on outside
+                    return ''; // Strip pseudo from the selectorOnly variable
+                }
+                return all;
+            });
+            def.isolateSelector.push(selectorOnly); // Add to array for later
             selector = `.${ def.isolateClass }:is(${ selectorOnly })` + suffix;
         }
         if (def.prefix && !selector.startsWith(def.prefix)) {
-            // If it is not prefixed at this point, then be sure to prefix
+            // A prefix was specified, so prepend it if it doesn't have it
             selector = `${ def.prefix } ${ selector }`;
         }
         return selector;
@@ -1070,42 +1054,53 @@ modulo.register('cpart', class Style {
                 return this.processSelector(modulo, def, selector);
             });
         }
+        if (def.urlReplace || (def.urlReplace === null && def.Source)) {
+            const key = def.urlReplace === 'absolute' ? 'href' : 'pathname';
+            value = value.replace(/url\(['"]?([^)]+?)['"]?\)/gi, (all, url) => {
+                if (url.startsWith('.')) { // If relative, make absolute
+                    return `url("${ (new window.URL(url, def.Source))[key] }")`;
+                }
+                return all; // Not a relative URL, return all text untampered
+            });
+        }
         const { mode } = modulo.definitions[def.Parent] || {};
         if (mode === 'shadow') { // Stash in the definition configuration
             def.shadowContent = (def.shadowContent || '') + value;
         } else { // Otherwise, just "register" as a modulo asset
-            // TODO: Refactor this inline, change modulo.assets into plain
-            // object, and move the dom to "windowMount" or "factory" etc
-            modulo.assets.registerStylesheet(value);
+            def.headHash = modulo.registry.utils.hash(value);
+            if (!(def.headHash in modulo.assets.stylesheets)) {
+                modulo.assets.stylesheets[def.headHash] = value;
+                modulo.assets.cssAssetsArray.push(value);
+            }
         }
     }
 
-    static factoryCallback(renderObj, def, modulo) {
-        // OLD TODO: "windowReadyCallback" - Refactor to put stylesheet in head?
+    makeStyleTag(parentElem, content) {
+        const style = window.document.createElement('style');
+        style.setAttribute('modulo-asset', 'y');
+        style.textContent = content;
+        parentElem.append(style);
     }
 
     domCallback(renderObj) {
         const { mode } = modulo.definitions[this.conf.Parent] || {};
         const { innerDOM, Parent } = renderObj.component;
-        const { isolateClass, isolateSelector, shadowContent } = this.conf;
+        const { headHash, isolateClass, isolateSelector, shadowContent } = this.conf;
         if (isolateClass && isolateSelector && innerDOM) { // Attach classes
             const selector = isolateSelector.filter(s => s).join(',\n');
             for (const elem of innerDOM.querySelectorAll(selector)){
                 elem.classList.add(isolateClass);
             }
         }
-        if (shadowContent && innerDOM) {
-            const style = window.document.createElement('style');
-            style.textContent = shadowContent;
-            innerDOM.append(style); // Append to element to reconcile
+        if (shadowContent && innerDOM) { // Append to element to reconcile
+            this.makeStyleTag(innerDOM, shadowContent);
+        }
+        const devStyles = this.modulo.assets.stylesheets;
+        if (headHash && headHash in devStyles) { // Add to page: Hasn't been yet
+            this.makeStyleTag(window.document.head, devStyles[headHash]);
+            delete this.conf.headHash; // Consume, so it only happens once
         }
     }
-}, {
-    AutoIsolate: true, // true is "default behavior" (autodetect)
-    isolateSelector: null, // Later has list of selectors
-    isolateClass: null, // No class-based isolate
-    prefix: null, // No prefix-based isolation
-    DefBuilders: [ 'AutoIsolate', 'Content|ProcessCSS' ]
 });
 
 modulo.register('cpart', class Template {
@@ -1117,6 +1112,15 @@ modulo.register('cpart', class Template {
         // TODO: Refactor this to use define processor?
         modulo.assets.define(def.DefinitionName, code);
         delete def.Content;
+    }
+
+    constructor(text, options = null) {
+        if (typeof text === 'string') { // Using "new" (direct JS interface)
+            window.modulo.instance({ }, options || { }, this); // Setup object
+            this.conf.DefinitionName = '_template_template' + this.id; // Unique
+            const code = `return function (CTX, G) { ${ this.compileFunc(text) } };`;
+            this.modulo.assets.define(this.conf.DefinitionName, code);
+        }
     }
 
     constructedCallback() {
@@ -1132,9 +1136,7 @@ modulo.register('cpart', class Template {
     }
 
     initializedCallback() {
-        // When component mounts, expose a reference to the "render" function
-        this.renderFunc = this.modulo.assets.require(this.conf.DefinitionName);
-        return { render: this.render.bind(this) };
+        return { render: this.render.bind(this) }; // Export "render" method
     }
 
     renderCallback(renderObj) {
@@ -1186,7 +1188,7 @@ modulo.register('cpart', class Template {
     }
 
     tokenizeText(text) {
-        // Join all modeTokens with | (OR in regex).
+        // Join all modeTokens with | (OR in regex)
         const { escapeRegExp } = this.modulo.registry.utils;
         const re = '(' + this.modeTokens.map(escapeRegExp).join('|(').replace(/ +/g, ')(.+?)');
         return text.split(RegExp(re)).filter(token => token !== undefined);
@@ -1216,6 +1218,9 @@ modulo.register('cpart', class Template {
     }
 
     render(renderObj) {
+        if (!this.renderFunc) { // Run module and get function
+            this.renderFunc = this.modulo.assets.require(this.conf.DefinitionName);
+        }
         return this.renderFunc(Object.assign({ renderObj }, renderObj), this);
     }
 }, {
@@ -1322,7 +1327,7 @@ modulo.config.template.defaultTags = {
             start += `CTX.${keyVar}=KEY;`;
         }
         start += `CTX.${valVar ? valVar : varExp}=${arrName}[KEY];`;
-        return {start, end: '}'};
+        return { start, end: '}'};
     },
     'empty': (text, {stack}) => {
         // Make variable name be based on nested-ness of tag stack
@@ -1369,9 +1374,18 @@ modulo.register('processor', function code (modulo, def, value) {
     modulo.assets.define(def.DefinitionName, value);
 });
 
+modulo.register('processor', function codeTemplate (modulo, def, value) {
+    if (def.DefinitionName in modulo.assets.nameToHash) {
+        console.error("ERROR: Duped def:", def.DefinitionName);
+        return;
+    }
+    const tmplt = new modulo.registry.cparts.Template(value); // Compile Template
+    modulo.assets.define(def.DefinitionName, tmplt.render({ modulo, def }));
+});
+
 modulo.register('cpart', class StaticData {
     static RequireData (modulo, def, value) {
-        def.data = modulo.assets.require(def[value]);
+        def.data = modulo.assets.require(def[value]); // TODO: Remove asset
     }
     prepareCallback() {
         return this.conf.data;
@@ -1388,28 +1402,35 @@ modulo.register('coreDef', class Configuration { }, {
     DefLoaders: [ 'DefTarget', 'DefinedAs', 'Src|SrcSync', 'Content|Code', 'DefinitionName|MainRequire' ],
 });
 
+modulo.config.script = {
+    lifecycle: null,
+    DefBuilders: [ 'Content|AutoExport', 'CodeTemplate' ],
+    CodeTemplate: `var script = { exports: { } };{% if def.locals.length %}
+    var {{ def.locals|join:',' }};{% endif %}
+    {{ def.tempContent|safe }}
+    ;return { exports: script.exports,
+        {% for n in def.exportNames %}
+            "{{ n }}": typeof {{ n }} !== "undefined" ? {{ n }} : undefined,
+        {% endfor %}
+        setLocalVariables: function (o) {
+            {% for n in def.locals %}{{ n }} = o.{{ n }};{% endfor %}
+        }
+    }`.replace(/\s\s+/g, ' '),
+};
+
 modulo.register('cpart', class Script {
     static AutoExport (modulo, def, value) {
         const { getAutoExportNames } = modulo.registry.utils;
         if (def.lifecycle && def.lifecycle !== 'initialized') {
             value = `function ${ def.lifecycle }Callback (renderObj) {${ value }}`;
         }
-        const isDirRegEx = /(Unmount|Mount)$/;
-        def.Directives = getAutoExportNames(value).filter(s => s.match(isDirRegEx));
         const { ChildrenNames } = modulo.definitions[def.Parent] || { };
         const sibs = (ChildrenNames || []).map(n => modulo.definitions[n].Name);
         sibs.push('component', 'element', 'cparts'); // Add in extras
-        const varNames = sibs.filter(name => value.includes(name)); // Used only
-        // Build def.Code to wrap the user-provided code and export local vars
-        def.Code = `var script = { exports: {} }; `;
-        def.Code += varNames.length ? `var ${ varNames.join(', ') };` : '';
-        def.Code += '\n' + value + '\nreturn {';
-        for (const s of getAutoExportNames(value)) {
-            def.Code += `"${s}": typeof ${s} !== "undefined" ? ${s} : undefined, `;
-        }
-        def.Code += `setLocalVariables: function (o) {`
-        def.Code += varNames.map(name => `${ name }=o.${ name }`).join('; ');
-        def.Code += `}, exports: script.exports }\n`
+        def.exportNames = def.exportNames || getAutoExportNames(value); // Scan names
+        def.locals = def.locals || sibs.filter(name => value.includes(name));
+        def.Directives = def.exportNames.filter(s => s.match(/(Unmount|Mount)$/));
+        def.tempContent = value;
     }
 
     static factoryCallback(renderObj, def, modulo) {
@@ -1450,9 +1471,6 @@ modulo.register('cpart', class Script {
             };
         }
     }
-}, {
-    lifecycle: null,
-    DefBuilders: [ 'Content|AutoExport', 'Code' ],
 });
 
 
@@ -1925,10 +1943,8 @@ modulo.register('engine', class Reconciler {
         }
         for (let rival of nodes) { // loop through nodes to patch
             if (rival.hasAttribute('mm-ignore')) {
-                // Skip any marked to ignore
-                continue;
+                continue; // Skip any marked to ignore
             }
-
             for (const rawName of rival.getAttributeNames()) {
                 // Loop through each attribute patching foundDirectives as necessary
                 this.patchDirectives(rival, rawName, actionSuffix);
@@ -1945,54 +1961,35 @@ modulo.register('util', function getAutoExportNames(contents) {
         .filter(s => s && !Modulo.INVALID_WORDS.has(s));
 });
 
-/*-{-% if not config.IS_BUILD %-}-*/
 modulo.register('util', function showDevMenu() {
     const cmd = new URLSearchParams(window.location.search).get('mod-cmd');
     const rerun = `<h1><a href="?mod-cmd=${ cmd }">&#x27F3; ${ cmd }</a></h1>`;
     if (cmd) { // Command specified, skip dev menu, run, and replace HTML after
         const callback = () => { window.document.body.innerHTML = rerun; };
         const func = () => modulo.registry.commands[cmd](modulo, { callback });
-        return window.setTimeout(func, 1000); // TODO: Remove this delay
+        return window.setTimeout(func, modulo.config.commandDelay || 1000);
     } // Else: Display "COMMANDS:" menu in console
-    const commandNames = Object.keys(modulo.registry.commands);
     const href = 'window.location.href += ';
     const font = 'font-size: 28px; padding: 0 8px 0 8px; border: 2px solid black;';
-    const commandGetters = commandNames.map(cmd =>
+    const commandGetters = Object.keys(modulo.registry.commands).map(cmd =>
         ('get ' + cmd + ' () {' + href + '"?mod-cmd=' + cmd + '";}'));
     const clsCode = 'class COMMANDS {' + commandGetters.join('\n') + '}';
     new Function(`console.log('%c%', '${ font }', new (${ clsCode }))`)();
 });
 
 modulo.register('command', function build (modulo, opts = {}) {
-    const filter = opts.filter || (({ Type }) => Type === 'Artifact');
-    modulo.config.IS_BUILD = true;
-    opts.callback = opts.callback || (() => {});
-    for (const elem of document.querySelectorAll('*')) {
-        if (elem.cparts && elem.cparts.component) {
-            elem.cparts.component._lifecycle([ 'build' ]); // "buildCallback"
-        }
-    }
-    const artifacts = Object.values(modulo.definitions).filter(filter);
-    const buildNext = () => {
-        const artifact = artifacts.shift();
-        const artifactParts = modulo.instanceParts(artifact, {});
-        const buildObj = { modulo, def: artifact };
-        modulo.lifecycle(artifactParts, buildObj, [ 'buildCommand' ]);
-        //modulo.repeatProcessors(artifacts, 'ArtifactBuilders');
-        modulo.fetchQueue.enqueueAll(artifacts.length > 0 ? buildNext : opts.callback);
-    };
-    modulo.assert(artifacts.length, 'Build filter produced no artifacts');
-    buildNext();
+    modulo.preprocessAndDefine(opts.callback, 'BuildCommand');
 });
 
-if (typeof window.document !== 'undefined') {
-    modulo.loadFromDOM(window.document.head, null, true); // Head blocking load
-    window.document.addEventListener('DOMContentLoaded', () => {
-        modulo.loadString(modulo.DEVLIB_SOURCE, '_artifact'); // Load DEV LIB
-        modulo.loadFromDOM(window.document.body, null, true); // Load new tags
-        modulo.preprocessAndDefine(modulo.registry.utils.showDevMenu);
-    });
-} else if (typeof module !== 'undefined') { // Node.js
-    module.exports = { Modulo, modulo, window };
+if (typeof window.moduloBuild === 'undefined') { // Not in a build, try loading
+    if (typeof window.document !== 'undefined') { // Document exists
+        modulo.loadString(modulo._DEVLIB_SOURCE, '_artifact'); // Load dev lib
+        modulo.loadFromDOM(window.document.head, null, true); // Blocking load
+        window.document.addEventListener('DOMContentLoaded', () => {
+            modulo.loadFromDOM(window.document.body, null, true); // Async load
+            modulo.preprocessAndDefine(modulo.registry.utils.showDevMenu);
+        });
+    } else if (typeof module !== 'undefined') { // Node.js
+        module.exports = { modulo, window };
+    }
 }
-/*-{-% endif %-}-*/
