@@ -1,0 +1,83 @@
+_FILE(`<!-- (BOILERPLATE: KEEP THIS LINE) -->
+
+<!--
+    This is the common "header" across all the pages on this site. Define more
+    components here to have them be available with an "x-" prefix.
+-->
+<Component name="Page" mode="vanish-into-document">
+    <Props
+        pagetitle
+        showarticles
+        navselected
+        navbreadcrumb
+    ></Props>
+    <StaticData
+        -name="links_pages"
+        -src="./data/links/pages.json"
+    ></StaticData>
+    <StaticData
+        -name="links_articles"
+        -src="./data/links/articles.json"
+    ></StaticData>
+    <Template
+        -src="./components/Page/Page.html"
+    ></Template>
+    <Style
+        -auto-isolate="vanish"
+        -src="./components/Page/Page.css"
+    ></Style>
+    <Script>
+        function prepareCallback() {
+            return { // Get the current year on every render of the page
+                currentYear: (new Date()).getFullYear(),
+            };
+        }
+    </Script>
+</Component>
+
+<Component name="ContactForm" mode="vanish">
+    <!-- This ContactForm example component will update based on the state. -->
+    <State
+        name=""
+        subject=""
+        subscribe:=true
+        text="Enter your comment text here!"
+        fields:='["name", "subject", "text", "subscribe"]'
+    ></State>
+    <Template
+        -src="./components/ContactForm/ContactForm.html"
+    ></Template>
+    <Style
+        -src="./components/ContactForm/ContactForm.css"
+    ></Style>
+</Component>
+
+<!-- Define a new ArticlePage component, which supports Markdown -->
+<Component name="ArticlePage" mode="vanish-into-document">
+    <Template -src="./components/ArticlePage/ArticlePage.html"></Template>
+    <Script -name="page">
+        // Helper function to convert given source code to HTML
+        function _getMarkdownData(source) {
+            const converter = new showdown.Converter({ metadata: true });
+            const html = converter.makeHtml(source);
+            const data = converter.getMetadata();
+            data.body = html;
+            return data;
+        }
+
+        function prepareCallback(renderObj) {
+            let data = { body: element.originalHTML };
+            if (/^<scri.t(.type=.?md.?)?>/i.test(data.body)) { // Is markdown?
+                // It's Markdown! Remove any "script type=md" prefixes
+                let body = data.body.replace(/^<scri.t(.type=.?md.?)?>/i, '');
+                // Unescape (fixes issues with using HTML as source file)
+                body = body.replace(/&gt;/gi, '>').replace(/&lt;/gi, '<');
+                data = _getMarkdownData(body);
+            }
+            data.body = Object.assign(String(data.body), { safe: true });
+            return data;
+        }
+    </Script>
+</Component>
+
+<!-- (BOILERPLATE: KEEP THIS LINE) -->`)
