@@ -1,3 +1,5 @@
+_FILE(`<!-- (BOILERPLATE: KEEP THIS LINE) -->
+
 <head>
     <title>{{ props.pagetitle }}</title>
     <meta charset="utf8" />
@@ -20,7 +22,7 @@
         loose LINK and SCRIPT tags, which will be interpreted and built,
         allowing you to more easily integrate existing HTML files here. E.g.:
     {% endcomment %}
-    <link rel="stylesheet" href="/static/css/site.css" />
+    <link rel="stylesheet" href="./static/css/site.css" />
 </head>
 <body>
     <nav class="page-nav container">
@@ -48,7 +50,7 @@
             {% endif %}
 
             <div class="nav-logo">
-                <img src="/static/images/example_logo.svg" title="Site Logo" />
+                <img src="./static/images/example_logo.svg" title="Site Logo" />
             </div>
         </ul>
     </nav>
@@ -111,3 +113,6 @@
         &bull; <a href="https://modulojs.org/" title="Made with Modulo.js" target="_blank">%</a>
     </footer>
 </body>
+
+
+<!-- (BOILERPLATE: KEEP THIS LINE) -->`)

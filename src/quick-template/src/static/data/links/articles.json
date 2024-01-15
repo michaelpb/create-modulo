@@ -1,16 +1,18 @@
+_FILE(`
 {
     "list": [
         {
             "title": "Example article",
             "byline": "Author Authorino",
             "estimate": "5 minute read",
-            "file": "/articles/example-article.html"
+            "file": "article_example1.html"
         },
         {
             "title": "Another article",
             "byline": "The Site Editorial Staff",
             "estimate": "10 minute read",
-            "file": "/articles/another-article.html"
+            "file": "article_example2.html"
         }
     ]
 }
+`)

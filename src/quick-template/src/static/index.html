@@ -53,11 +53,17 @@ _FILE(`<!-- (BOILERPLATE: KEEP THIS LINE) -->
 </Component>
 
 <!-- Define a new ArticlePage component, which supports Markdown -->
+<Configuration -src="https://unpkg.com/showdown/dist/showdown.min.js"></Configuration>
 <Component name="ArticlePage" mode="vanish-into-document">
     <Template -src="./components/ArticlePage/ArticlePage.html"></Template>
     <Script -name="page">
         // Helper function to convert given source code to HTML
         function _getMarkdownData(source) {
+            // TODO Ensure this is added -v
+            if (!window.showdown) {
+                // Hasn't loaded yet
+                return { };
+            }
             const converter = new showdown.Converter({ metadata: true });
             const html = converter.makeHtml(source);
             const data = converter.getMetadata();
@@ -76,6 +82,14 @@ _FILE(`<!-- (BOILERPLATE: KEEP THIS LINE) -->
             }
             data.body = Object.assign(String(data.body), { safe: true });
             return data;
+        }
+
+        function domCallback(renderObj) {
+            if (!window.showdown) {
+                component.innerDOM = null; // Prevent render
+                console.log('not loaded!');
+                //setTimeout(() => element.rerender(), 500); // try again
+            }
         }
     </Script>
 </Component>

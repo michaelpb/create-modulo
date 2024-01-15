@@ -1,16 +1,18 @@
+_FILE(`
 {
     "list": [
         {
             "title": "Articles",
-            "file": "/index.html"
+            "file": "index.html"
         },
         {
             "title": "About",
-            "file": "/about.html"
+            "file": "about.html"
         },
         {
             "title": "Contact",
-            "file": "/contact.html"
+            "file": "contact.html"
         }
     ]
 }
+`)
